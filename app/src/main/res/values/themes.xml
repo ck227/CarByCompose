@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--<style name="Theme.CarByCompose" parent="Platform.Theme.Jetnews">
+
+    </style>-->
+
+    <style name="Platform.Theme.CarByCompose" parent="Theme.Material3.DayNight">
+        <item name="android:statusBarColor">@color/black30</item>
+    </style>
+
+    <!-- The actual theme we use. This varies for light theme (here),
+         and values-night for dark theme. -->
+    <style name="Theme.CarByCompose" parent="Platform.Theme.CarByCompose" />
+</resources>
