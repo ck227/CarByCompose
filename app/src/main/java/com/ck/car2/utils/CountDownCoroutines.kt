@@ -1,4 +1,4 @@
-package com.ck.car2.util
+package com.ck.car2.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

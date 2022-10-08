@@ -7,6 +7,9 @@ buildscript {
         nav_version = "2.5.2"
         material_version = "1.7.0-beta01"
         accompanist_version = "0.25.1"
+        androidx_lifecycle_compose_version = "2.5.1"
+        coil_version = "2.2.2"
+
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {

@@ -22,6 +22,7 @@ val color_home_bottom_item_selected = Color(0xFF4CAF50)
 val color_home_bottom_item_un_selected = Color(0xFF666666)
 val color_ui_background = Color(0xFFFFFFFF)
 val color_home_bottom_item_bg = Color(0xFFFFFFFF)
+val color_home_icon_text = Color(0xFF666666)
 
 const val AlphaNearOpaque = 0.95f
 

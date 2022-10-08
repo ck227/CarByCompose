@@ -13,7 +13,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun LaunchScreen(onTimeOut: () -> Unit) {
-    var ticks by remember { mutableStateOf(2) }
+    var ticks by remember { mutableStateOf(1) }
     LaunchedEffect(Unit) {
         while (true) {
             delay(1000)

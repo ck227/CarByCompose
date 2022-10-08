@@ -71,6 +71,14 @@ dependencies {
     implementation "com.google.android.material:material:$material_version"
     //accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
+    //viewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_compose_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$androidx_lifecycle_compose_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$androidx_lifecycle_compose_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$androidx_lifecycle_compose_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$androidx_lifecycle_compose_version"
+    //coil图片下载
+    implementation "io.coil-kt:coil-compose:$coil_version"
 
 
 }

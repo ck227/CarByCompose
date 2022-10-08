@@ -5,4 +5,6 @@
     <string name="home_menu2">菜谱</string>
     <string name="home_menu3">购物车</string>
     <string name="home_menu4">我的</string>
+
+    <string name="load_error">获取数据失败</string>
 </resources>

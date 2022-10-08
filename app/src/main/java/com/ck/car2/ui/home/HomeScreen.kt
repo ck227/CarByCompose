@@ -27,14 +27,22 @@ import androidx.navigation.compose.rememberNavController
 import com.ck.car2.R
 import com.ck.car2.graphs.HomeNavGraph
 import com.ck.car2.ui.theme.CarByComposeTheme
+import com.ck.car2.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController = rememberNavController()) {
+fun HomeScreen(
+    homeViewModel: HomeViewModel,
+    navController: NavHostController = rememberNavController()
+) {
     Scaffold(bottomBar = {
         MyBottomNavigation(navController = navController)
     }) { innerPadding ->
-        HomeNavGraph(navController, modifier = Modifier.padding(innerPadding))
+        HomeNavGraph(
+            homeViewModel = homeViewModel,
+            navController,
+            modifier = Modifier.padding(innerPadding)
+        )
     }
 }
 
