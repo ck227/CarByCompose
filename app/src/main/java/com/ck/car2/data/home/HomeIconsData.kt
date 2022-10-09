@@ -5,7 +5,7 @@ import com.ck.car2.model.HotIcon
 val homeIcon0 = HotIcon(
     id = 0,
     title = "蔬菜豆制品",
-    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsrc.sotu114.com%2Fdata%2Fattachment%2Fforum%2F202003%2F19%2F194256cdbkwj6oddc5kkzd.item.jpg-ture&refer=http%3A%2F%2Fsrc.sotu114.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1667748640&t=f24a94aac82f4185ffaa3e58802ccab8"
+    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fi.zw3e.com%2Fzw_news_map%2F550%2F2016051%2F1462758254047351778.jpg&refer=http%3A%2F%2Fi.zw3e.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1667833006&t=a78e37d8b0805eac24c91a080b06671f"
 )
 
 val homeIcon1 = homeIcon0.copy(id = 1, title = "肉禽蛋")

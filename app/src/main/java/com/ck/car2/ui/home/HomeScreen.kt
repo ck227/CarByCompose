@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -102,7 +99,7 @@ sealed class Screen(val route: String, @StringRes val title: Int, val icon: Imag
     )
 
     object Home2 : Screen(
-        route = "home2", title = R.string.home_menu2, icon = Icons.Default.Menu
+        route = "home2", title = R.string.home_menu2, icon = Icons.Default.Star
     )
 
     object Home3 : Screen(
