@@ -24,35 +24,43 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val LightColorPalette = CarByComposeColors(
     is_dark = false,
-    home_bottom_item_selected = color_home_bottom_item_selected,
-    home_bottom_item_un_selected = color_home_bottom_item_un_selected,
-    ui_background = color_ui_background,
-    home_bottom_item_bg = color_home_bottom_item_bg,
-    home_icon_text = color_home_icon_text,
+    primary = color_primary,
+    transparent = color_transparent,
+    ui_background = color_white,
+    main_tab_un_select_color = color_grey666,
+
+    home_bottom_item_bg = color_white,
+    home_icon_text = color_grey333,
+    home_tab_text = color_grey333,
+    home_tab_desc_text_select = color_white,
+    home_tab_desc_text_un_select = color_grey999,
 )
 
-private val DarkColorPalette = CarByComposeColors(
+/*private val DarkColorPalette = CarByComposeColors(
     is_dark = true,
-    home_bottom_item_selected = color_home_bottom_item_selected,
-    home_bottom_item_un_selected = color_home_bottom_item_un_selected,
-    ui_background = color_ui_background,
-    home_bottom_item_bg = color_home_bottom_item_bg,
-    home_icon_text = color_home_icon_text,
-)
+    primary = color_primary,
+    ui_background = color_white,
+    main_tab_un_select_color = color_grey666,
+
+    home_bottom_item_bg = color_white,
+    home_icon_text = color_grey333,
+    home_tab_text = color_grey666,
+)*/
 
 @Composable
 fun CarByComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
+//    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
+    val colors = LightColorPalette
     val sysUiController = rememberSystemUiController()
     SideEffect {
-        sysUiController.setSystemBarsColor(
-            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
-        )
-        sysUiController.setStatusBarColor(
-            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
-        )
+//        sysUiController.setSystemBarsColor(
+//            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
+//        )
+//        sysUiController.setStatusBarColor(
+//            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
+//        )
     }
 
     ProvideCarByComposeColors(colors) {
@@ -73,35 +81,54 @@ object CarByComposeTheme {
 @Stable
 class CarByComposeColors(
     is_dark: Boolean,
-    home_bottom_item_selected: Color,
-    home_bottom_item_un_selected: Color,
+    primary: Color,
+    transparent: Color,
     ui_background: Color,
+    main_tab_un_select_color: Color,
     home_bottom_item_bg: Color,
     home_icon_text: Color,
+    home_tab_text: Color,
+    home_tab_desc_text_select: Color,
+    home_tab_desc_text_un_select: Color,
 ) {
     var isDark by mutableStateOf(is_dark)
-    var homeBottomItemSelected by mutableStateOf(home_bottom_item_selected)
-    var homeBottomItemUnSelected by mutableStateOf(home_bottom_item_un_selected)
+    var primary by mutableStateOf(primary)
+    var transparent by mutableStateOf(transparent)
     var uiBackground by mutableStateOf(ui_background)
+    var mainTabUnSelect by mutableStateOf(main_tab_un_select_color)
+
     var homeBottomItemBg by mutableStateOf(home_bottom_item_bg)
     var homeIconText by mutableStateOf(home_icon_text)
+    var homeTabText by mutableStateOf(home_tab_text)
+    var homeTabDescTextSelect by mutableStateOf(home_tab_desc_text_select)
+    var homeTabDescTextUnSelect by mutableStateOf(home_tab_desc_text_un_select)
 
     fun update(other: CarByComposeColors) {
         isDark = other.isDark
-        homeBottomItemSelected = other.homeBottomItemSelected
-        homeBottomItemUnSelected = other.homeBottomItemUnSelected
-        uiBackground = other.uiBackground
+        primary = other.primary
+        primary = other.primary
+        transparent = other.transparent
+        mainTabUnSelect = other.mainTabUnSelect
+
         homeBottomItemBg = other.homeBottomItemBg
         homeIconText = other.homeIconText
+        homeTabText = other.homeTabText
+        homeTabDescTextSelect = other.homeTabDescTextSelect
+        homeTabDescTextUnSelect = other.homeTabDescTextUnSelect
     }
 
     fun copy(): CarByComposeColors = CarByComposeColors(
         is_dark = isDark,
-        home_bottom_item_selected = homeBottomItemSelected,
-        home_bottom_item_un_selected = homeBottomItemUnSelected,
+        primary = primary,
+        transparent = transparent,
         ui_background = uiBackground,
+        main_tab_un_select_color = mainTabUnSelect,
+
         home_bottom_item_bg = homeBottomItemBg,
         home_icon_text = homeIconText,
+        home_tab_text = homeTabText,
+        home_tab_desc_text_select = homeTabDescTextSelect,
+        home_tab_desc_text_un_select = homeTabDescTextUnSelect,
     )
 }
 

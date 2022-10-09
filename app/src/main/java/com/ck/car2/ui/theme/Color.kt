@@ -18,11 +18,13 @@ package com.ck.car2.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val color_home_bottom_item_selected = Color(0xFF4CAF50)
-val color_home_bottom_item_un_selected = Color(0xFF666666)
-val color_ui_background = Color(0xFFFFFFFF)
-val color_home_bottom_item_bg = Color(0xFFFFFFFF)
-val color_home_icon_text = Color(0xFF333333)
+
+val color_primary = Color(0xFF4FBD53)
+val color_transparent = Color(0x00FFFFFF)
+val color_white = Color(0xFFFFFFFF)
+val color_grey333 = Color(0xFF333333)
+val color_grey666 = Color(0xFF666666)
+val color_grey999 = Color(0xFF999999)
 
 const val AlphaNearOpaque = 0.95f
 

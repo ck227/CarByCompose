@@ -1,27 +1,30 @@
 package com.ck.car2.ui.home
 
+//import androidx.compose.material.Tab
+//import androidx.compose.material.TabRowDefaults
+//import androidx.compose.material.Text
+import android.util.Log
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.DragInteraction
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.ScrollableTabRow
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -32,6 +35,8 @@ import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
 import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.pager.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +52,8 @@ fun HomeScreen0(
         HomeTopAppBar()
     }) { it ->
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.background(CarByComposeTheme.colors.uiBackground),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (hasResult) {
                 Banner(
@@ -67,7 +73,7 @@ fun HomeScreen0(
 @Composable
 fun HomeTopAppBar() {
     CenterAlignedTopAppBar(
-//        modifier = Modifier.height(76.dp),
+//        modifier = Modifier.background(CarByComposeTheme.colors.uiBackground),
         title = {
             Text(
                 text = stringResource(id = R.string.home_menu0),
@@ -76,6 +82,10 @@ fun HomeTopAppBar() {
             )
         },
     )
+    /*TopAppBar(
+        title = { Text(stringResource(R.string.home_menu0)) },
+        backgroundColor = CarByComposeTheme.colors.uiBackground,
+    )*/
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -92,15 +102,11 @@ fun Banner(hotItems: List<HotIcon>, modifier: Modifier) {
 
     Box(modifier = modifier) {
         HorizontalPager(
-            count = hotItems.size,
-            state = pagerState,
-            modifier = Modifier.fillMaxWidth()
+            count = loopingCount, state = pagerState, modifier = Modifier.fillMaxWidth()
         ) { index ->
-            val page = (index - startIndex).floorMod(hotItems.size)
+            val page = pageMapper(index)
             BannerItem(hotItems[page])
         }
-
-
 
         HorizontalPagerIndicator(
             pagerState = pagerState,
@@ -110,8 +116,49 @@ fun Banner(hotItems: List<HotIcon>, modifier: Modifier) {
             indicatorWidth = 14.dp,
             indicatorHeight = 2.dp,
             spacing = 2.dp,
-            indicatorShape = RoundedCornerShape(2.dp)
+            indicatorShape = RoundedCornerShape(2.dp),
+            pageCount = pageCount,
+            pageIndexMapping = ::pageMapper
         )
+
+        var underDragging by remember {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(key1 = Unit) {
+            pagerState.interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is PressInteraction.Press -> underDragging = true
+                    is PressInteraction.Release -> underDragging = false
+                    is PressInteraction.Cancel -> underDragging = false
+                    is DragInteraction.Start -> underDragging = true
+                    is DragInteraction.Stop -> underDragging = false
+                    is DragInteraction.Cancel -> underDragging = false
+                }
+            }
+        }
+        if (underDragging.not()) {
+            LaunchedEffect(key1 = underDragging) {
+                try {
+                    while (true) {
+                        delay(3000L)
+                        val current = pagerState.currentPage
+                        val currentPos = pageMapper(current)
+                        val nextPage = current + 1
+                        if (underDragging.not()) {
+                            val toPage = nextPage.takeIf { nextPage < pagerState.pageCount }
+                                ?: (currentPos + startIndex + 1)
+                            if (toPage > current) {
+                                pagerState.animateScrollToPage(toPage)
+                            } else {
+                                pagerState.scrollToPage(toPage)
+                            }
+                        }
+                    }
+                } catch (e: CancellationException) {
+                    Log.i("page", "Launched paging cancelled")
+                }
+            }
+        }
     }
 }
 
@@ -170,23 +217,60 @@ fun PhotoItem(hotIcon: HotIcon) {
 @Composable
 fun HomeViewPager(hotIcons: List<HotIcon>) {
     val pagerState = rememberPagerState()
-    TabRow(
+    ScrollableTabRow(
         // Our selected tab is our current page
         selectedTabIndex = pagerState.currentPage,
+        edgePadding = 0.dp,
+        backgroundColor = CarByComposeTheme.colors.uiBackground,
         // Override the indicator, using the provided pagerTabIndicatorOffset modifier
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+                height = 0.dp, modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
             )
-        }
-    ) {
+        },
+        divider = {
+            //remove divider
+        }) {
         // Add tabs for all of our pages
         hotIcons.forEachIndexed { index, hotIcon ->
+            val selected = pagerState.currentPage == index
             Tab(
+                selected = selected,
                 text = {
-                    Text(text = hotIcon.title)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = hotIcon.title,
+                            fontSize = 13.sp,
+                            color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.homeTabText
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .height(16.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.transparent)
+                                .padding(start = 8.dp, end = 8.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "好货专区",
+                                color = if (selected) CarByComposeTheme.colors.homeTabDescTextSelect else CarByComposeTheme.colors.homeTabDescTextUnSelect,
+                                fontSize = 10.sp,
+                                textAlign = TextAlign.Center,
+                                style = LocalTextStyle.current.merge(
+                                    TextStyle(
+                                        platformStyle = PlatformTextStyle(
+                                            includeFontPadding = false
+                                        ),
+                                    )
+                                )
+                            )
+                        }
+
+                    }
                 },
-                selected = pagerState.currentPage == index,
                 onClick = { /* TODO */ },
             )
         }
@@ -196,8 +280,8 @@ fun HomeViewPager(hotIcons: List<HotIcon>) {
         count = hotIcons.size,
         state = pagerState,
     ) { page ->
-        // TODO: page content
-        Text(text = hotIcons[page].title.plus(hotIcons[page].id))
-
+        Text(
+            text = hotIcons[page].title.plus(hotIcons[page].id), modifier = Modifier.fillMaxHeight()
+        )
     }
 }

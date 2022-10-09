@@ -9,7 +9,7 @@ buildscript {
         accompanist_version = "0.25.1"
         androidx_lifecycle_compose_version = "2.5.1"
         coil_version = "2.2.2"
-        pager_version = "0.25.1"
+        pager_version = "0.26.5-rc"
 
 
     }

@@ -73,13 +73,13 @@ private fun MyBottomNavigation(navController: NavController, modifier: Modifier 
                     Icon(
                         screen.icon,
                         contentDescription = null,
-                        tint = if (selected) CarByComposeTheme.colors.homeBottomItemSelected else CarByComposeTheme.colors.homeBottomItemUnSelected
+                        tint = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.mainTabUnSelect
                     )
                 },
                 label = {
                     Text(
                         text = stringResource(screen.title),
-                        color = if (selected) CarByComposeTheme.colors.homeBottomItemSelected else CarByComposeTheme.colors.homeBottomItemUnSelected
+                        color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.mainTabUnSelect
                     )
                 },
 //                selectedContentColor = MaterialTheme.colors.error,
