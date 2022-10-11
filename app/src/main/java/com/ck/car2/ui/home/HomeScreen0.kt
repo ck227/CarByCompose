@@ -1,9 +1,7 @@
 package com.ck.car2.ui.home
 
-//import androidx.compose.material.Tab
-//import androidx.compose.material.TabRowDefaults
-//import androidx.compose.material.Text
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
@@ -19,7 +17,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -27,8 +28,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavHostController
+import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.ck.car2.R
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.theme.CarByComposeTheme
@@ -37,6 +44,7 @@ import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,118 +56,163 @@ fun HomeScreen0(
         is HomeUiState.HasPosts -> true
         is HomeUiState.NoPosts -> false
     }
+
+    var bannerBgColor by remember { mutableStateOf(Color.Transparent) }
     Scaffold(topBar = {
-        HomeTopAppBar()
+        Column(
+            modifier = Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
+                    )
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HomeTopAppBar()
+            if (hasResult) {
+                Banner(
+//                    (uiState as HomeUiState.HasPosts).hotIcons,
+                    uiState = uiState,
+                    getImageColor = { color, position ->
+                        Log.i("HomeScreen", "map存颜色".plus(position))
+                        homeViewModel.addBannerColor(position, color)
+                        if (position.toInt() == 0) {
+                            //初次进来获取的时候还没有从图片中获取到颜色
+                            bannerBgColor = color
+                        }
+                    },
+                    bannerItemSelected = { index: Int ->
+                        Log.i("HomeScreen", "map取颜色".plus(index))
+                        val size = (uiState as HomeUiState.HasPosts).hotIcons.size
+                        bannerBgColor =
+                            (uiState as HomeUiState.HasPosts).bannerColorMap[(index % size).toString()]
+                                ?: Color.Transparent
+                    }
+                )
+            }
+        }
     }) { it ->
         Column(
-            modifier = Modifier.background(CarByComposeTheme.colors.uiBackground),
+            modifier = Modifier
+                .padding(it)
+                .background(CarByComposeTheme.colors.uiBackground),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (hasResult) {
-                Banner(
-                    (uiState as HomeUiState.HasPosts).hotIcons, modifier = Modifier.padding(it)
-                )
                 PhotoGrid(
-                    (uiState as HomeUiState.HasPosts).hotIcons
+                    (uiState as HomeUiState.HasPosts).hotIcons,
                 )
                 HomeViewPager((uiState as HomeUiState.HasPosts).hotIcons)
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar() {
     CenterAlignedTopAppBar(
-//        modifier = Modifier.background(CarByComposeTheme.colors.uiBackground),
         title = {
             Text(
                 text = stringResource(id = R.string.home_menu0),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
             )
-        },
+        }, colors = TopAppBarDefaults.mediumTopAppBarColors(
+            containerColor = CarByComposeTheme.colors.transparent
+        )
     )
-    /*TopAppBar(
-        title = { Text(stringResource(R.string.home_menu0)) },
-        backgroundColor = CarByComposeTheme.colors.uiBackground,
-    )*/
+//        scrollBehavior = TopAppBarScrollBehavior.flingAnimationSpec
 }
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun Banner(hotItems: List<HotIcon>, modifier: Modifier) {
-    val pageCount = hotItems.size
+fun Banner(
+    uiState: HomeUiState,
+    getImageColor: (color: Color, position: String) -> Unit,
+    bannerItemSelected: (bannerPosition: Int) -> Unit
+) {
+    val pageCount = (uiState as HomeUiState.HasPosts).hotIcons.size
     val loopingCount = Int.MAX_VALUE
     val startIndex = 0
     val pagerState = rememberPagerState(initialPage = startIndex)
 
-    fun pageMapper(index: Int): Int {
-        return (index - startIndex).floorMod(hotItems.size)
+    LaunchedEffect(pagerState) {
+        // Collect from the pager state a snapshotFlow reading the currentPage
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            bannerItemSelected(page)
+        }
     }
 
-    Box(modifier = modifier) {
+    fun pageMapper(index: Int): Int {
+        return (index - startIndex).floorMod(uiState.hotIcons.size)
+    }
+    Box() {
         HorizontalPager(
             count = loopingCount, state = pagerState, modifier = Modifier.fillMaxWidth()
         ) { index ->
             val page = pageMapper(index)
-            BannerItem(hotItems[page])
+            BannerItem(
+                uiState = uiState,
+                hotIcon = uiState.hotIcons[page],
+                getImageColor = getImageColor
+            )
         }
-
         HorizontalPagerIndicator(
             pagerState = pagerState,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 8.dp, end = 20.dp),
+            pageIndexMapping = ::pageMapper,
+            activeColor = CarByComposeTheme.colors.homeBannerSelect,
+            inactiveColor = CarByComposeTheme.colors.homeBannerUnSelect,
             indicatorWidth = 14.dp,
             indicatorHeight = 2.dp,
             spacing = 2.dp,
             indicatorShape = RoundedCornerShape(2.dp),
             pageCount = pageCount,
-            pageIndexMapping = ::pageMapper
         )
+    }
 
-        var underDragging by remember {
-            mutableStateOf(false)
-        }
-        LaunchedEffect(key1 = Unit) {
-            pagerState.interactionSource.interactions.collect { interaction ->
-                when (interaction) {
-                    is PressInteraction.Press -> underDragging = true
-                    is PressInteraction.Release -> underDragging = false
-                    is PressInteraction.Cancel -> underDragging = false
-                    is DragInteraction.Start -> underDragging = true
-                    is DragInteraction.Stop -> underDragging = false
-                    is DragInteraction.Cancel -> underDragging = false
-                }
-            }
-        }
-        if (underDragging.not()) {
-            LaunchedEffect(key1 = underDragging) {
-                try {
-                    while (true) {
-                        delay(3000L)
-                        val current = pagerState.currentPage
-                        val currentPos = pageMapper(current)
-                        val nextPage = current + 1
-                        if (underDragging.not()) {
-                            val toPage = nextPage.takeIf { nextPage < pagerState.pageCount }
-                                ?: (currentPos + startIndex + 1)
-                            if (toPage > current) {
-                                pagerState.animateScrollToPage(toPage)
-                            } else {
-                                pagerState.scrollToPage(toPage)
-                            }
-                        }
-                    }
-                } catch (e: CancellationException) {
-                    Log.i("page", "Launched paging cancelled")
-                }
+    var underDragging by remember {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(key1 = Unit) {
+        pagerState.interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> underDragging = true
+                is PressInteraction.Release -> underDragging = false
+                is PressInteraction.Cancel -> underDragging = false
+                is DragInteraction.Start -> underDragging = true
+                is DragInteraction.Stop -> underDragging = false
+                is DragInteraction.Cancel -> underDragging = false
             }
         }
     }
+    if (underDragging.not()) {
+        LaunchedEffect(key1 = underDragging) {
+            try {
+                while (true) {
+                    delay(3000L)
+                    val current = pagerState.currentPage
+                    val currentPos = pageMapper(current)
+                    val nextPage = current + 1
+                    if (underDragging.not()) {
+                        val toPage = nextPage.takeIf { nextPage < pagerState.pageCount }
+                            ?: (currentPos + startIndex + 1)
+                        if (toPage > current) {
+                            pagerState.animateScrollToPage(toPage)
+                        } else {
+                            pagerState.scrollToPage(toPage)
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                Log.i("page", "Launched paging cancelled")
+            }
+        }
+    }
+
 }
 
 private fun Int.floorMod(other: Int): Int = when (other) {
@@ -168,17 +221,58 @@ private fun Int.floorMod(other: Int): Int = when (other) {
 }
 
 @Composable
-fun BannerItem(hotIcon: HotIcon) {
-    AsyncImage(
-        model = hotIcon.url,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .height(120.dp)
-            .padding(start = 12.dp, end = 12.dp)
-            .clip(RoundedCornerShape(14.dp))
+fun BannerItem(
+    uiState: HomeUiState,
+    hotIcon: HotIcon,
+    getImageColor: (color: Color, index: String) -> Unit
+) {
+//    (uiState as HomeUiState.HasPosts).hotIcons.size
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current).data(hotIcon.url)
+            .size(Size.ORIGINAL)
+            .allowHardware(false) //IMPORTANT!
+            .build()
     )
+    if (painter.state is AsyncImagePainter.State.Success) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .height(140.dp)
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp)
+                .clip(RoundedCornerShape(10.dp))
+        )
+
+        // This will be executed during the first composition if the image is in the memory cache.
+
+        if ((uiState as HomeUiState.HasPosts).bannerColorMap.containsKey(hotIcon.id.toString())) {
+            return
+        }
+        LaunchedEffect(key1 = hotIcon) {
+            launch {
+                Log.i("HomeScreen", "从图片取颜色".plus(hotIcon.id))
+                val image = painter.imageLoader.execute(painter.request).drawable
+                val bitmap = image?.toBitmap()
+                if (bitmap != null) {
+                    val palette = Palette.from(bitmap).generate()
+                    var vibrant = palette.vibrantSwatch
+                    if (vibrant == null) {
+                        vibrant = palette.lightVibrantSwatch
+                    }
+                    val rgb = vibrant?.rgb
+                    if (rgb != null) {
+                        getImageColor(Color(rgb), hotIcon.id.toString())
+                    } else {
+                        Log.i("HomeScreen", "没有取到颜色".plus(hotIcon.id))
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 @Composable
 fun PhotoGrid(hotItems: List<HotIcon>) {

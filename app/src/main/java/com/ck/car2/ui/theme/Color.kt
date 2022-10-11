@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 val color_primary = Color(0xFF4FBD53)
 val color_transparent = Color(0x00FFFFFF)
 val color_white = Color(0xFFFFFFFF)
+val color_white80 = Color(0x80FFFFFF)
 val color_grey333 = Color(0xFF333333)
 val color_grey666 = Color(0xFF666666)
 val color_grey999 = Color(0xFF999999)

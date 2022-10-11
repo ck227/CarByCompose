@@ -1,5 +1,6 @@
 package com.ck.car2.viewmodels
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -26,6 +27,7 @@ sealed interface HomeUiState {
 
     data class HasPosts(
         val hotIcons: List<HotIcon>,
+        val bannerColorMap: Map<String, Color>,
         override val isLoading: Boolean,
         override val errorMessages: List<ErrorMessage>,
         override val searchInput: String
@@ -34,6 +36,7 @@ sealed interface HomeUiState {
 
 private data class HomeViewModelState(
     val hotIcons: List<HotIcon>? = null,
+    val bannerColorMap: Map<String, Color> = emptyMap(),
     val isLoading: Boolean = false,
     val errorMessages: List<ErrorMessage> = emptyList(),
     val searchInput: String = "",
@@ -48,6 +51,7 @@ private data class HomeViewModelState(
         } else {
             HomeUiState.HasPosts(
                 hotIcons = hotIcons,
+                bannerColorMap = bannerColorMap,
                 isLoading = isLoading,
                 errorMessages = errorMessages,
                 searchInput = searchInput
@@ -55,20 +59,25 @@ private data class HomeViewModelState(
         }
 }
 
+
 class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(HomeViewModelState(isLoading = true))
 
-    val uiState = viewModelState
-        .map { it.toUiState() }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            viewModelState.value.toUiState()
-        )
+    val uiState = viewModelState.map { it.toUiState() }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        viewModelState.value.toUiState()
+    )
 
     init {
         refreshHotIcons()
+
+        viewModelScope.launch {
+            homeRepository.observeBannerColor().collect { bannerColorMap ->
+                viewModelState.update { it.copy(bannerColorMap = bannerColorMap) }
+            }
+        }
     }
 
     private fun refreshHotIcons() {
@@ -89,6 +98,12 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                     }
                 }
             }
+        }
+    }
+
+    fun addBannerColor(position: String, color: Color) {
+        viewModelScope.launch {
+            homeRepository.addBannerColor(position, color)
         }
     }
 

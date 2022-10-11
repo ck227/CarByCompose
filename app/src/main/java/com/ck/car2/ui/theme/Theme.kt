@@ -29,6 +29,11 @@ private val LightColorPalette = CarByComposeColors(
     ui_background = color_white,
     main_tab_un_select_color = color_grey666,
 
+    /**
+     * 首页home0
+     */
+    home_banner_select = color_white,
+    home_banner_un_select = color_white80,
     home_bottom_item_bg = color_white,
     home_icon_text = color_grey333,
     home_tab_text = color_grey333,
@@ -85,6 +90,8 @@ class CarByComposeColors(
     transparent: Color,
     ui_background: Color,
     main_tab_un_select_color: Color,
+    home_banner_select: Color,
+    home_banner_un_select: Color,
     home_bottom_item_bg: Color,
     home_icon_text: Color,
     home_tab_text: Color,
@@ -97,6 +104,8 @@ class CarByComposeColors(
     var uiBackground by mutableStateOf(ui_background)
     var mainTabUnSelect by mutableStateOf(main_tab_un_select_color)
 
+    var homeBannerSelect by mutableStateOf(home_banner_select)
+    var homeBannerUnSelect by mutableStateOf(home_banner_un_select)
     var homeBottomItemBg by mutableStateOf(home_bottom_item_bg)
     var homeIconText by mutableStateOf(home_icon_text)
     var homeTabText by mutableStateOf(home_tab_text)
@@ -110,6 +119,8 @@ class CarByComposeColors(
         transparent = other.transparent
         mainTabUnSelect = other.mainTabUnSelect
 
+        homeBannerSelect = other.homeBannerSelect
+        homeBannerUnSelect = other.homeBannerUnSelect
         homeBottomItemBg = other.homeBottomItemBg
         homeIconText = other.homeIconText
         homeTabText = other.homeTabText
@@ -124,6 +135,8 @@ class CarByComposeColors(
         ui_background = uiBackground,
         main_tab_un_select_color = mainTabUnSelect,
 
+        home_banner_select = homeBannerSelect,
+        home_banner_un_select = homeBannerUnSelect,
         home_bottom_item_bg = homeBottomItemBg,
         home_icon_text = homeIconText,
         home_tab_text = homeTabText,
