@@ -12,6 +12,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ScrollableTabRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,10 +26,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,7 +39,6 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
-import com.ck.car2.R
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
@@ -56,39 +58,33 @@ fun HomeScreen0(
         is HomeUiState.HasPosts -> true
         is HomeUiState.NoPosts -> false
     }
-
     var bannerBgColor by remember { mutableStateOf(Color.Transparent) }
     Scaffold(topBar = {
         Column(
-            modifier = Modifier
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
-                    )
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
+                )
+            ), horizontalAlignment = Alignment.CenterHorizontally
         ) {
             HomeTopAppBar()
+            SearchBar(bannerBgColor)
+            Spacer(modifier = Modifier.height(8.dp))
             if (hasResult) {
-                Banner(
-//                    (uiState as HomeUiState.HasPosts).hotIcons,
-                    uiState = uiState,
-                    getImageColor = { color, position ->
-                        Log.i("HomeScreen", "map存颜色".plus(position))
-                        homeViewModel.addBannerColor(position, color)
-                        if (position.toInt() == 0) {
-                            //初次进来获取的时候还没有从图片中获取到颜色
-                            bannerBgColor = color
-                        }
-                    },
-                    bannerItemSelected = { index: Int ->
-                        Log.i("HomeScreen", "map取颜色".plus(index))
-                        val size = (uiState as HomeUiState.HasPosts).hotIcons.size
-                        bannerBgColor =
-                            (uiState as HomeUiState.HasPosts).bannerColorMap[(index % size).toString()]
-                                ?: Color.Transparent
+                Banner(uiState = uiState, getImageColor = { color, position ->
+                    Log.i("HomeScreen", "map存颜色".plus(position))
+                    homeViewModel.addBannerColor(position, color)
+                    if (position.toInt() == 0) {
+                        //初次进来获取的时候还没有从图片中获取到颜色
+                        bannerBgColor = color
                     }
-                )
+                }, bannerItemSelected = { index: Int ->
+                    Log.i("HomeScreen", "map取颜色".plus(index))
+                    val size = (uiState as HomeUiState.HasPosts).hotIcons.size
+                    bannerBgColor =
+                        (uiState as HomeUiState.HasPosts).bannerColorMap[(index % size).toString()]
+                            ?: Color.Transparent
+                })
             }
         }
     }) { it ->
@@ -112,17 +108,88 @@ fun HomeScreen0(
 @Composable
 fun HomeTopAppBar() {
     CenterAlignedTopAppBar(
-        title = {
-            Text(
-                text = stringResource(id = R.string.home_menu0),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+        title = {},
+        navigationIcon = {
+            Row(
+                modifier = Modifier.padding(start = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocationOn,
+                    contentDescription = null,
+                    tint = CarByComposeTheme.colors.uiBackground
+                )
+                Text(
+                    text = "武汉市洪山区", color = CarByComposeTheme.colors.uiBackground, fontSize = 16.sp
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = CarByComposeTheme.colors.uiBackground
+                )
+            }
+        },
+        actions = {
+            Icon(
+                modifier = Modifier.padding(end = 12.dp),
+                imageVector = Icons.Default.Notifications,
+                contentDescription = null,
+                tint = CarByComposeTheme.colors.uiBackground
             )
-        }, colors = TopAppBarDefaults.mediumTopAppBarColors(
+        },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = CarByComposeTheme.colors.transparent
-        )
-    )
+        ),
 //        scrollBehavior = TopAppBarScrollBehavior.flingAnimationSpec
+    )
+}
+
+@Composable
+fun SearchBar(bannerBgColor: Color) {
+    Row(
+        modifier = Modifier
+            .height(30.dp)
+            .padding(start = 12.dp, end = 12.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(15.dp))
+            .background(CarByComposeTheme.colors.uiBackground),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(start = 8.dp, end = 6.dp)
+                .size(18.dp),
+            tint = CarByComposeTheme.colors.homeSearchBarTextColor
+        )
+        Text(
+            text = "搜索您想要的商品",
+            color = CarByComposeTheme.colors.homeSearchBarTextColor,
+            fontSize = 12.sp,
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            Divider(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .height(12.dp)
+                    .width(1.dp),
+                color = bannerBgColor
+            )
+            Text(
+                text = "搜索",
+                color = bannerBgColor,
+                fontSize = 12.sp,
+            )
+        }
+
+    }
 }
 
 @OptIn(ExperimentalPagerApi::class)
@@ -153,9 +220,7 @@ fun Banner(
         ) { index ->
             val page = pageMapper(index)
             BannerItem(
-                uiState = uiState,
-                hotIcon = uiState.hotIcons[page],
-                getImageColor = getImageColor
+                uiState = uiState, hotIcon = uiState.hotIcons[page], getImageColor = getImageColor
             )
         }
         HorizontalPagerIndicator(
@@ -222,14 +287,11 @@ private fun Int.floorMod(other: Int): Int = when (other) {
 
 @Composable
 fun BannerItem(
-    uiState: HomeUiState,
-    hotIcon: HotIcon,
-    getImageColor: (color: Color, index: String) -> Unit
+    uiState: HomeUiState, hotIcon: HotIcon, getImageColor: (color: Color, index: String) -> Unit
 ) {
 //    (uiState as HomeUiState.HasPosts).hotIcons.size
     val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current).data(hotIcon.url)
-            .size(Size.ORIGINAL)
+        model = ImageRequest.Builder(LocalContext.current).data(hotIcon.url).size(Size.ORIGINAL)
             .allowHardware(false) //IMPORTANT!
             .build()
     )
@@ -293,14 +355,14 @@ fun PhotoItem(hotIcon: HotIcon) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         AsyncImage(
             model = hotIcon.url,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
+                .size(48.dp)
+                .clip(RoundedCornerShape(14.dp))
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(text = hotIcon.title, fontSize = 11.sp, color = CarByComposeTheme.colors.homeIconText)
@@ -374,8 +436,50 @@ fun HomeViewPager(hotIcons: List<HotIcon>) {
         count = hotIcons.size,
         state = pagerState,
     ) { page ->
-        Text(
-            text = hotIcons[page].title.plus(hotIcons[page].id), modifier = Modifier.fillMaxHeight()
-        )
+        Column() {
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+        }
+
     }
 }

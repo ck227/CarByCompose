@@ -26,7 +26,7 @@ val homeIcon3 = homeIcon0.copy(
 val homeIcon4 = homeIcon0.copy(
     id = 4,
     title = "乳品烘焙",
-    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201605%2F11%2F20160511130957_ezwSB.jpeg&refer=http%3A%2F%2Fb-ssl.duitang.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668008163&t=8bea1c66212e1478145a1a2efb780d0c"
+    url = "https://img0.baidu.com/it/u=4143665760,1226472251&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500"
 )
 val homeIcon5 = homeIcon0.copy(
     id = 5,

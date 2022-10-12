@@ -39,6 +39,7 @@ private val LightColorPalette = CarByComposeColors(
     home_tab_text = color_grey333,
     home_tab_desc_text_select = color_white,
     home_tab_desc_text_un_select = color_grey999,
+    home_search_bar_text_color = color_grey999,
 )
 
 /*private val DarkColorPalette = CarByComposeColors(
@@ -97,6 +98,7 @@ class CarByComposeColors(
     home_tab_text: Color,
     home_tab_desc_text_select: Color,
     home_tab_desc_text_un_select: Color,
+    home_search_bar_text_color: Color,
 ) {
     var isDark by mutableStateOf(is_dark)
     var primary by mutableStateOf(primary)
@@ -111,6 +113,7 @@ class CarByComposeColors(
     var homeTabText by mutableStateOf(home_tab_text)
     var homeTabDescTextSelect by mutableStateOf(home_tab_desc_text_select)
     var homeTabDescTextUnSelect by mutableStateOf(home_tab_desc_text_un_select)
+    var homeSearchBarTextColor by mutableStateOf(home_search_bar_text_color)
 
     fun update(other: CarByComposeColors) {
         isDark = other.isDark
@@ -126,6 +129,7 @@ class CarByComposeColors(
         homeTabText = other.homeTabText
         homeTabDescTextSelect = other.homeTabDescTextSelect
         homeTabDescTextUnSelect = other.homeTabDescTextUnSelect
+        homeSearchBarTextColor = other.homeSearchBarTextColor
     }
 
     fun copy(): CarByComposeColors = CarByComposeColors(
@@ -142,6 +146,7 @@ class CarByComposeColors(
         home_tab_text = homeTabText,
         home_tab_desc_text_select = homeTabDescTextSelect,
         home_tab_desc_text_un_select = homeTabDescTextUnSelect,
+        home_search_bar_text_color = homeSearchBarTextColor,
     )
 }
 
