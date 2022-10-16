@@ -1,6 +1,5 @@
 package com.ck.car2.data.home
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.ck.car2.data.Result
 import com.ck.car2.model.HotIcon
@@ -13,6 +12,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class FakeHomeRepository : HomeRepository {
+
     private val tag = "FakeHomeRepository"
 
     private val mutex = Mutex()
@@ -24,7 +24,6 @@ class FakeHomeRepository : HomeRepository {
             if (shouldRandomlyFail()) {
                 Result.Error(IllegalStateException())
             } else {
-                Log.i(tag, homeIcons.size.toString())
                 Result.Success(homeIcons)
             }
         }
@@ -40,8 +39,6 @@ class FakeHomeRepository : HomeRepository {
         }
     }
 
-    // used to drive "random" failure in a predictable pattern, making the first request always
-    // succeed
     private var requestCount = 0
 
     /**

@@ -1,8 +1,7 @@
 package com.ck.car2.ui.home
 
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
@@ -24,14 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
@@ -47,77 +51,68 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen0(
     homeViewModel: HomeViewModel, navController: NavHostController
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
+    val bannerColorMap by homeViewModel.bannerColorMap.collectAsState()
     val hasResult = when (uiState) {
         is HomeUiState.HasPosts -> true
         is HomeUiState.NoPosts -> false
     }
     var bannerBgColor by remember { mutableStateOf(Color.Transparent) }
-    Scaffold(topBar = {
-        Column(
-            modifier = Modifier.background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
-                )
-            ), horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            HomeTopAppBar()
-            SearchBar(bannerBgColor)
-            Spacer(modifier = Modifier.height(8.dp))
-            if (hasResult) {
-                Banner(uiState = uiState, getImageColor = { color, position ->
-                    Log.i("HomeScreen", "map存颜色".plus(position))
-                    homeViewModel.addBannerColor(position, color)
-                    if (position.toInt() == 0) {
-                        //初次进来获取的时候还没有从图片中获取到颜色
-                        bannerBgColor = color
-                    }
-                }, bannerItemSelected = { index: Int ->
-                    Log.i("HomeScreen", "map取颜色".plus(index))
-                    val size = (uiState as HomeUiState.HasPosts).hotIcons.size
-                    bannerBgColor =
-                        (uiState as HomeUiState.HasPosts).bannerColorMap[(index % size).toString()]
-                            ?: Color.Transparent
-                })
-            }
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
+    Box(
+        Modifier.fillMaxSize()
+    ) {
+        val scroll = rememberScrollState(0)
+        if (hasResult) {
+            body(uiState = uiState, getBannerColor = { color, position ->
+                homeViewModel.addBannerColor(position, color)
+            }, setBannerColor = { color, position ->
+                if (color != null) {
+                    bannerBgColor = color
+                } else if (bannerColorMap[position] != null) {
+                    bannerBgColor = bannerColorMap[position]!!
+                }
+            }, bannerBgColor = bannerBgColor, scroll = scroll
+            )
         }
-    }) { it ->
-        Column(
-            modifier = Modifier
-                .padding(it)
-                .background(CarByComposeTheme.colors.uiBackground),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        HomeTopAppBar()
+        MySearchBar(
+            screenWidth = screenWidth, bannerBgColor = bannerBgColor
         ) {
-            if (hasResult) {
-                PhotoGrid(
-                    (uiState as HomeUiState.HasPosts).hotIcons,
-                )
-                HomeViewPager((uiState as HomeUiState.HasPosts).hotIcons)
-            }
+            scroll.value
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopAppBar() {
+fun HomeTopAppBar(
+) {
     CenterAlignedTopAppBar(
         title = {},
+        modifier = Modifier
+            .statusBarsPadding()
+            .height(56.dp),
         navigationIcon = {
             Row(
-                modifier = Modifier.padding(start = 12.dp),
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .fillMaxHeight(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = CarByComposeTheme.colors.uiBackground
+                    tint = CarByComposeTheme.colors.uiBackground,
+                    modifier = Modifier.size(24.dp)
                 )
                 Text(
                     text = "武汉市洪山区", color = CarByComposeTheme.colors.uiBackground, fontSize = 16.sp
@@ -131,7 +126,9 @@ fun HomeTopAppBar() {
         },
         actions = {
             Icon(
-                modifier = Modifier.padding(end = 12.dp),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .fillMaxHeight(),
                 imageVector = Icons.Default.Notifications,
                 contentDescription = null,
                 tint = CarByComposeTheme.colors.uiBackground
@@ -139,9 +136,59 @@ fun HomeTopAppBar() {
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = CarByComposeTheme.colors.transparent
-        ),
-//        scrollBehavior = TopAppBarScrollBehavior.flingAnimationSpec
+        )
     )
+}
+
+@Composable
+fun MySearchBar(screenWidth: Dp, bannerBgColor: Color, scrollProvider: () -> Int) {
+    //43dp是滑动的Y距离，30 + （56-30）/2 = 43
+    val collapseRange = with(LocalDensity.current) { (43.dp).toPx() }
+    val collapseFractionProvider = {
+        (scrollProvider() / collapseRange).coerceIn(0f, 1f)
+    }
+    CollapsingSearchBar(
+        modifier = Modifier.statusBarsPadding(),
+        screenWidth = screenWidth,
+        collapseFractionProvider = collapseFractionProvider,
+    ) {
+        SearchBar(bannerBgColor)
+    }
+}
+
+@Composable
+fun CollapsingSearchBar(
+    modifier: Modifier = Modifier,
+    screenWidth: Dp,
+    collapseFractionProvider: () -> Float,
+    content: @Composable () -> Unit,
+) {
+    val searchBarWidthBig = screenWidth
+    val searchBarWidthSmall = screenWidth - 28.dp - 28.dp
+    Layout(
+        modifier = modifier, content = content
+    ) { measurables, constraints ->
+        check(measurables.size == 1)
+        val collapseFraction = collapseFractionProvider()
+
+        val widthMaxSize = min(searchBarWidthBig.roundToPx(), constraints.maxWidth)
+        val widthMinSize = max(searchBarWidthSmall.roundToPx(), constraints.minWidth)
+        val imageWidth = lerp(widthMaxSize, widthMinSize, collapseFraction)
+        val imagePlaceable =
+            measurables[0].measure(Constraints.fixed(imageWidth, 30.dp.roundToPx()))
+
+        val imageY = lerp(56.dp, 13.dp, collapseFraction).roundToPx()
+        val imageX = lerp(
+            0.dp.roundToPx(), // centered when expanded
+            28.dp.roundToPx(), // right aligned when collapsed
+            collapseFraction
+        )
+        layout(
+            width = constraints.maxWidth, height = 30.dp.roundToPx()
+        ) {
+            imagePlaceable.placeRelative(imageX, imageY)
+        }
+    }
 }
 
 @Composable
@@ -192,12 +239,120 @@ fun SearchBar(bannerBgColor: Color) {
     }
 }
 
+@Composable
+fun body(
+    uiState: HomeUiState,
+    getBannerColor: (color: Color, position: String) -> Unit,
+    setBannerColor: (color: Color?, position: String) -> Unit,
+    bannerBgColor: Color,
+    scroll: ScrollState
+) {
+    Box(
+        modifier = Modifier
+//            .background(CarByComposeTheme.colors.primary)
+            .fillMaxWidth()
+            .verticalScroll(scroll)
+    ) {
+        Column(
+        ) {
+            Text(
+                text = "", modifier = Modifier
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
+                        )
+                    )
+                    .statusBarsPadding()
+                    .fillMaxWidth()
+                    .height(
+                        56.dp
+                            .plus(30.dp)
+                            .plus(148.dp)
+                    )
+            )
+
+            /*PhotoGrid(
+                (uiState as HomeUiState.HasPosts).hotIcons,
+            )*/
+//            HomeViewPager(uiState.hotIcons)
+
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "66699999")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "6660000")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+            Text(text = "666")
+
+        }
+        Column() {
+            Spacer(
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .height(
+                        56.dp
+                            .plus(30.dp)
+                            .plus(8.dp)
+                    )
+            )
+            Banner(uiState = uiState, getImageColor = { color, position ->
+                getBannerColor(color, position)
+                if (position.toInt() == 0) {
+                    setBannerColor(color, position)
+                }
+            }, bannerItemSelected = { position: Int ->
+                val size = (uiState as HomeUiState.HasPosts).hotIcons.size
+                setBannerColor(
+                    null, (position % size).toString()
+                )
+            })
+        }
+    }
+}
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Banner(
     uiState: HomeUiState,
     getImageColor: (color: Color, position: String) -> Unit,
-    bannerItemSelected: (bannerPosition: Int) -> Unit
+    bannerItemSelected: (bannerPosition: Int) -> Unit,
 ) {
     val pageCount = (uiState as HomeUiState.HasPosts).hotIcons.size
     val loopingCount = Int.MAX_VALUE
@@ -214,6 +369,7 @@ fun Banner(
     fun pageMapper(index: Int): Int {
         return (index - startIndex).floorMod(uiState.hotIcons.size)
     }
+
     Box() {
         HorizontalPager(
             count = loopingCount, state = pagerState, modifier = Modifier.fillMaxWidth()
@@ -309,12 +465,11 @@ fun BannerItem(
 
         // This will be executed during the first composition if the image is in the memory cache.
 
-        if ((uiState as HomeUiState.HasPosts).bannerColorMap.containsKey(hotIcon.id.toString())) {
-            return
-        }
+//        if (viewModel.containsKey(hotIcon.id.toString())) {
+//            return
+//        }
         LaunchedEffect(key1 = hotIcon) {
             launch {
-                Log.i("HomeScreen", "从图片取颜色".plus(hotIcon.id))
                 val image = painter.imageLoader.execute(painter.request).drawable
                 val bitmap = image?.toBitmap()
                 if (bitmap != null) {
@@ -437,6 +592,78 @@ fun HomeViewPager(hotIcons: List<HotIcon>) {
         state = pagerState,
     ) { page ->
         Column() {
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
+            Text(
+                text = hotIcons[page].title.plus(hotIcons[page].id),
+            )
             Text(
                 text = hotIcons[page].title.plus(hotIcons[page].id),
             )

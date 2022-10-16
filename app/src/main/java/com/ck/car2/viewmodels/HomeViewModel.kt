@@ -5,13 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ck.car2.R
+import com.ck.car2.data.Result
 import com.ck.car2.data.home.HomeRepository
 import com.ck.car2.model.HotIcon
 import com.ck.car2.utils.ErrorMessage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
-import com.ck.car2.data.Result
 
 sealed interface HomeUiState {
     val isLoading: Boolean
@@ -27,7 +27,6 @@ sealed interface HomeUiState {
 
     data class HasPosts(
         val hotIcons: List<HotIcon>,
-        val bannerColorMap: Map<String, Color>,
         override val isLoading: Boolean,
         override val errorMessages: List<ErrorMessage>,
         override val searchInput: String
@@ -36,7 +35,6 @@ sealed interface HomeUiState {
 
 private data class HomeViewModelState(
     val hotIcons: List<HotIcon>? = null,
-    val bannerColorMap: Map<String, Color> = emptyMap(),
     val isLoading: Boolean = false,
     val errorMessages: List<ErrorMessage> = emptyList(),
     val searchInput: String = "",
@@ -51,7 +49,6 @@ private data class HomeViewModelState(
         } else {
             HomeUiState.HasPosts(
                 hotIcons = hotIcons,
-                bannerColorMap = bannerColorMap,
                 isLoading = isLoading,
                 errorMessages = errorMessages,
                 searchInput = searchInput
@@ -64,6 +61,9 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(HomeViewModelState(isLoading = true))
 
+    private val _bannerColorMap: MutableStateFlow<Map<String, Color>> = MutableStateFlow(emptyMap())
+    val bannerColorMap: StateFlow<Map<String, Color>> get() = _bannerColorMap
+
     val uiState = viewModelState.map { it.toUiState() }.stateIn(
         viewModelScope,
         SharingStarted.Eagerly,
@@ -75,7 +75,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
         viewModelScope.launch {
             homeRepository.observeBannerColor().collect { bannerColorMap ->
-                viewModelState.update { it.copy(bannerColorMap = bannerColorMap) }
+                _bannerColorMap.value = bannerColorMap
             }
         }
     }
