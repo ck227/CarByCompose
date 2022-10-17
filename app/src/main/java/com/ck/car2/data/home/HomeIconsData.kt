@@ -50,7 +50,7 @@ val homeIcon8 = homeIcon0.copy(
 )
 val homeIcon9 = homeIcon0.copy(
     id = 9,
-    title = "熟食预制菜",
+    title = "熟食预制",
     url = "https://img1.baidu.com/it/u=2530471945,389476190&fm=253&fmt=auto&app=120&f=JPEG?w=1280&h=800"
 )
 

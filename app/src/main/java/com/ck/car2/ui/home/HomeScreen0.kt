@@ -87,8 +87,7 @@ fun HomeScreen0(
         }
         HomeTopAppBar(scroll = scroll)
         MySearchBar(
-            screenWidth = screenWidth,
-            bannerBgColor = bannerBgColor
+            screenWidth = screenWidth, bannerBgColor = bannerBgColor
         ) {
             scroll.value
         }
@@ -290,7 +289,7 @@ fun body(
             PhotoGrid(
                 (uiState as HomeUiState.HasPosts).hotIcons,
             )
-            HomeViewPager(uiState.hotIcons)
+            HomeViewPager(uiState.hotIcons, scroll)
         }
         Column() {
             Spacer(
@@ -502,12 +501,23 @@ fun PhotoItem(hotIcon: HotIcon) {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeViewPager(hotIcons: List<HotIcon>) {
+fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
+    //grid高度172，banner高度140，searchbar高度30
+    val maxOffset = with(LocalDensity.current) { 172.dp.plus(140.dp).plus(30.dp).plus(8.dp).toPx() }
     ScrollableTabRow(
         // Our selected tab is our current page
         selectedTabIndex = pagerState.currentPage,
+        modifier = Modifier
+            .offset {
+                val offset = if (scroll.value < maxOffset) {
+                    0
+                } else {
+                    scroll.value - maxOffset.toInt()
+                }
+                IntOffset(x = 0, y = offset)
+            },
         edgePadding = 0.dp,
         backgroundColor = CarByComposeTheme.colors.uiBackground,
         // Override the indicator, using the provided pagerTabIndicatorOffset modifier
@@ -517,8 +527,9 @@ fun HomeViewPager(hotIcons: List<HotIcon>) {
             )
         },
         divider = {
-            //remove divider
-        }) {
+
+        }
+    ) {
         // Add tabs for all of our pages
         hotIcons.forEachIndexed { index, hotIcon ->
             val selected = pagerState.currentPage == index
@@ -662,31 +673,31 @@ fun HomeViewPager(hotIcons: List<HotIcon>) {
                 text = hotIcons[page].title.plus(hotIcons[page].id),
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "88888",
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "77777"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "66666"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "55555"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "44444"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "33333"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "22222"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "11111"
             )
             Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
+                text = "00000"
             )
         }
     }
