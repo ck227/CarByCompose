@@ -1,6 +1,7 @@
 package com.ck.car2.ui.home
 
 import android.util.Log
+import androidx.compose.animation.Animatable
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.icons.Icons
@@ -20,10 +20,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -35,7 +36,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
@@ -48,6 +48,7 @@ import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
 import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.pager.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,6 +59,8 @@ import kotlin.math.min
 fun HomeScreen0(
     homeViewModel: HomeViewModel, navController: NavHostController
 ) {
+    val systemUiController = rememberSystemUiController()
+
     val uiState by homeViewModel.uiState.collectAsState()
     val bannerColorMap by homeViewModel.bannerColorMap.collectAsState()
     val hasResult = when (uiState) {
@@ -71,6 +74,9 @@ fun HomeScreen0(
         Modifier.fillMaxSize()
     ) {
         val scroll = rememberScrollState(0)
+        systemUiController.setStatusBarColor(
+            color = Color.Transparent, darkIcons = scroll.value > 0
+        )
         if (hasResult) {
             body(uiState = uiState, getBannerColor = { color, position ->
                 homeViewModel.addBannerColor(position, color)
@@ -83,9 +89,10 @@ fun HomeScreen0(
             }, bannerBgColor = bannerBgColor, scroll = scroll
             )
         }
-        HomeTopAppBar()
+        HomeTopAppBar(scroll = scroll)
         MySearchBar(
-            screenWidth = screenWidth, bannerBgColor = bannerBgColor
+            screenWidth = screenWidth,
+            bannerBgColor = bannerBgColor
         ) {
             scroll.value
         }
@@ -95,10 +102,20 @@ fun HomeScreen0(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
+    scroll: ScrollState
 ) {
+    val alpha = 1.0f.coerceAtMost(scroll.value / with(LocalDensity.current) { (43.dp).toPx() })
+    val bgColor = CarByComposeTheme.colors.uiBackground.copy(
+        alpha = alpha
+    )
+    val iconColor = CarByComposeTheme.colors.homeTabText.copy(
+        alpha = alpha
+    )
+
     CenterAlignedTopAppBar(
         title = {},
         modifier = Modifier
+            .background(color = bgColor)
             .statusBarsPadding()
             .height(56.dp),
         navigationIcon = {
@@ -111,11 +128,14 @@ fun HomeTopAppBar(
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = CarByComposeTheme.colors.uiBackground,
+                    tint = if (scroll.value == 0) CarByComposeTheme.colors.uiBackground else iconColor,
                     modifier = Modifier.size(24.dp)
                 )
                 Text(
-                    text = "武汉市洪山区", color = CarByComposeTheme.colors.uiBackground, fontSize = 16.sp
+                    text = "武汉市洪山区",
+                    modifier = Modifier.padding(start = 4.dp),
+                    color = CarByComposeTheme.colors.uiBackground,
+                    fontSize = 16.sp
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
@@ -131,7 +151,7 @@ fun HomeTopAppBar(
                     .fillMaxHeight(),
                 imageVector = Icons.Default.Notifications,
                 contentDescription = null,
-                tint = CarByComposeTheme.colors.uiBackground
+                tint = if (scroll.value == 0) CarByComposeTheme.colors.uiBackground else iconColor,
             )
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -152,7 +172,7 @@ fun MySearchBar(screenWidth: Dp, bannerBgColor: Color, scrollProvider: () -> Int
         screenWidth = screenWidth,
         collapseFractionProvider = collapseFractionProvider,
     ) {
-        SearchBar(bannerBgColor)
+        SearchBar(bannerBgColor, scrollProvider() > 20)
     }
 }
 
@@ -192,14 +212,14 @@ fun CollapsingSearchBar(
 }
 
 @Composable
-fun SearchBar(bannerBgColor: Color) {
+fun SearchBar(bannerBgColor: Color, showGreyBg: Boolean) {
     Row(
         modifier = Modifier
             .height(30.dp)
             .padding(start = 12.dp, end = 12.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
-            .background(CarByComposeTheme.colors.uiBackground),
+            .background(if (showGreyBg) CarByComposeTheme.colors.homeTabDescTextUnSelect.copy(alpha = 0.1f) else CarByComposeTheme.colors.uiBackground),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -249,7 +269,6 @@ fun body(
 ) {
     Box(
         modifier = Modifier
-//            .background(CarByComposeTheme.colors.primary)
             .fillMaxWidth()
             .verticalScroll(scroll)
     ) {
@@ -271,55 +290,11 @@ fun body(
                     )
             )
 
-            /*PhotoGrid(
+            PhotoGrid(
                 (uiState as HomeUiState.HasPosts).hotIcons,
-            )*/
-//            HomeViewPager(uiState.hotIcons)
+            )
+            HomeViewPager(uiState.hotIcons)
 
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "66699999")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "6660000")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
-            Text(text = "666")
 
         }
         Column() {
@@ -445,7 +420,6 @@ private fun Int.floorMod(other: Int): Int = when (other) {
 fun BannerItem(
     uiState: HomeUiState, hotIcon: HotIcon, getImageColor: (color: Color, index: String) -> Unit
 ) {
-//    (uiState as HomeUiState.HasPosts).hotIcons.size
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current).data(hotIcon.url).size(Size.ORIGINAL)
             .allowHardware(false) //IMPORTANT!
@@ -495,7 +469,9 @@ fun BannerItem(
 fun PhotoGrid(hotItems: List<HotIcon>) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),
-        modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+        modifier = Modifier
+            .padding(start = 12.dp, end = 12.dp)
+            .height(172.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         userScrollEnabled = false
     ) {
@@ -520,7 +496,12 @@ fun PhotoItem(hotIcon: HotIcon) {
                 .clip(RoundedCornerShape(14.dp))
         )
         Spacer(modifier = Modifier.height(6.dp))
-        Text(text = hotIcon.title, fontSize = 11.sp, color = CarByComposeTheme.colors.homeIconText)
+        Text(
+            modifier = Modifier.height(16.dp),
+            text = hotIcon.title,
+            fontSize = 11.sp,
+            color = CarByComposeTheme.colors.homeIconText
+        )
     }
 }
 
