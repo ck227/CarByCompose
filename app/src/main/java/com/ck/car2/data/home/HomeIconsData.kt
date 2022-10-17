@@ -4,7 +4,7 @@ import com.ck.car2.model.HotIcon
 
 val homeIcon0 = HotIcon(
     id = 0,
-    title = "蔬菜豆制品",
+    title = "蔬菜豆制",
     url = "https://t7.baidu.com/it/u=760837404,2640971403&fm=193&f=GIF"
 )
 
