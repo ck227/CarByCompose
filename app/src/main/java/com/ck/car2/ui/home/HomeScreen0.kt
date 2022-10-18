@@ -8,10 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -72,7 +69,9 @@ fun HomeScreen0(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     Box(
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = 56.dp)
     ) {
         val scroll = rememberScrollState(0)
         systemUiController.setStatusBarColor(
@@ -509,104 +508,111 @@ fun PhotoItem(hotIcon: HotIcon) {
 fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
-    //grid高度172，banner高度140，searchbar高度30
-    val maxOffset = with(LocalDensity.current) { 172.dp.plus(140.dp).plus(30.dp).plus(8.dp).toPx() }
-    ScrollableTabRow(
-        // Our selected tab is our current page
-        selectedTabIndex = pagerState.currentPage,
-        modifier = Modifier
-            .offset {
-                val offset = if (scroll.value < maxOffset) {
-                    0
-                } else {
-                    scroll.value - maxOffset.toInt()
-                }
-                IntOffset(x = 0, y = offset)
-            },
-        edgePadding = 0.dp,
-        backgroundColor = CarByComposeTheme.colors.uiBackground,
-        // Override the indicator, using the provided pagerTabIndicatorOffset modifier
-        indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
-                height = 0.dp, modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
-            )
-        },
-        divider = {
-
-        }
-    ) {
-        // Add tabs for all of our pages
-        hotIcons.forEachIndexed { index, hotIcon ->
-            val selected = pagerState.currentPage == index
-            Tab(
-                selected = selected,
-                onClick = {
-                    scope.launch {
-                        pagerState.scrollToPage(index)
+    //grid高度172，banner高度140，searchbar高度30, 为啥就差了1个像素呢？round 四舍五入导致的？
+    val maxOffset =
+        with(LocalDensity.current) { 172.dp.plus(140.dp).plus(8.dp).plus(30.dp).roundToPx() } + 1
+    Box() {
+        Column() {
+            Spacer(modifier = Modifier.height(56.dp))
+            HorizontalPager(
+                count = hotIcons.size,
+                state = pagerState,
+            ) { page ->
+                StaggeredVerticalGrid(
+                    maxColumnWidth = 220.dp,
+                    modifier = Modifier.padding(4.dp)
+                ) {
+                    hotIcons.forEach { hotIcon ->
+                        ViewPagerHotIcon(hotIcon)
                     }
+                }
+            }
+        }
+
+        ScrollableTabRow(
+            // Our selected tab is our current page
+            selectedTabIndex = pagerState.currentPage,
+            modifier = Modifier
+                .offset {
+                    val offset = if (scroll.value < maxOffset) {
+                        0
+                    } else {
+                        scroll.value - maxOffset
+                    }
+                    IntOffset(x = 0, y = offset)
                 },
-                text = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            text = hotIcon.title,
-                            fontSize = 13.sp,
-                            color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.homeTabText
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .height(16.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.transparent)
-                                .padding(start = 8.dp, end = 8.dp),
-                            contentAlignment = Alignment.Center,
+            edgePadding = 0.dp,
+            backgroundColor = CarByComposeTheme.colors.uiBackground,
+            // Override the indicator, using the provided pagerTabIndicatorOffset modifier
+            indicator = { tabPositions ->
+                TabRowDefaults.Indicator(
+                    height = 0.dp,
+                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+                )
+            },
+            divider = {
+
+            }
+        ) {
+            // Add tabs for all of our pages
+            hotIcons.forEachIndexed { index, hotIcon ->
+                val selected = pagerState.currentPage == index
+                Tab(
+                    selected = selected,
+                    onClick = {
+                        scope.launch {
+                            pagerState.scrollToPage(index)
+                        }
+                    },
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text = "好货专区",
-                                color = if (selected) CarByComposeTheme.colors.homeTabDescTextSelect else CarByComposeTheme.colors.homeTabDescTextUnSelect,
-                                fontSize = 10.sp,
-                                textAlign = TextAlign.Center,
-                                style = LocalTextStyle.current.merge(
-                                    TextStyle(
-                                        platformStyle = PlatformTextStyle(
-                                            includeFontPadding = false
-                                        ),
+                                text = hotIcon.title,
+                                fontSize = 13.sp,
+                                color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.homeTabText
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .height(16.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.transparent)
+                                    .padding(start = 8.dp, end = 8.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = "好货专区",
+                                    color = if (selected) CarByComposeTheme.colors.homeTabDescTextSelect else CarByComposeTheme.colors.homeTabDescTextUnSelect,
+                                    fontSize = 10.sp,
+                                    textAlign = TextAlign.Center,
+                                    style = LocalTextStyle.current.merge(
+                                        TextStyle(
+                                            platformStyle = PlatformTextStyle(
+                                                includeFontPadding = false
+                                            ),
+                                        )
                                     )
                                 )
-                            )
+                            }
                         }
-                    }
-                },
-                selectedContentColor = CarByComposeTheme.colors.transparent,
-            )
-        }
-    }
-
-
-    HorizontalPager(
-        count = hotIcons.size,
-        state = pagerState,
-    ) { page ->
-        StaggeredVerticalGrid(
-            maxColumnWidth = 220.dp,
-            modifier = Modifier.padding(4.dp)
-        ) {
-            hotIcons.forEach { hotIcon ->
-                ViewPagerHotIcon(hotIcon)
+                    },
+                    selectedContentColor = CarByComposeTheme.colors.transparent,
+                )
             }
         }
     }
+
+
 }
 
 @Composable
 fun ViewPagerHotIcon(hotIcon: HotIcon) {
     Surface(
-        modifier = Modifier.padding(4.dp),
-        color = MaterialTheme.colors.surface,
-//        elevation = OwlTheme.elevations.card,
-        shape = MaterialTheme.shapes.medium
+        modifier = Modifier
+            .padding(4.dp)
+            .clip(RoundedCornerShape(8.dp)),
     ) {
         AsyncImage(
             model = hotIcon.url,

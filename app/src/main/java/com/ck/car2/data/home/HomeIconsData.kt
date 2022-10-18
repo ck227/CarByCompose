@@ -11,7 +11,7 @@ val homeIcon0 = HotIcon(
 val homeIcon1 = homeIcon0.copy(
     id = 1,
     title = "肉禽蛋",
-    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbkimg.cdn.bcebos.com%2Fpic%2Fd1160924ab18972bd407eb440f876c899e510eb39ca0&refer=http%3A%2F%2Fbkimg.cdn.bcebos.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668675049&t=7440a93fedb51e0f73ca1e8d0db72087"
+    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01d6095a2f5254a80120ba38814500.jpg%401280w_1l_2o_100sh.jpg&refer=http%3A%2F%2Fimg.zcool.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668676246&t=d2ff8350e3da5d17d47e1f35bf0522f2"
 )
 val homeIcon2 = homeIcon0.copy(
     id = 2,

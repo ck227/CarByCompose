@@ -1,9 +1,7 @@
 package com.ck.car2.ui.home
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
@@ -17,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -34,7 +33,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     navController: NavHostController = rememberNavController()
 ) {
-    Scaffold(bottomBar = {
+    Scaffold(
+        bottomBar = {
         MyBottomNavigation(navController = navController)
     }) { innerPadding ->
         HomeNavGraph(
