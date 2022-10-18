@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -47,8 +50,10 @@ import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.pager.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -499,7 +504,7 @@ fun PhotoItem(hotIcon: HotIcon) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
     val pagerState = rememberPagerState()
@@ -540,11 +545,9 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
                         pagerState.scrollToPage(index)
                     }
                 },
-
                 text = {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.width(64.dp),
                     ) {
                         Text(
                             text = hotIcon.title,
@@ -576,129 +579,96 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
                         }
                     }
                 },
+                selectedContentColor = CarByComposeTheme.colors.transparent,
             )
         }
     }
+
 
     HorizontalPager(
         count = hotIcons.size,
         state = pagerState,
     ) { page ->
-        Column() {
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = hotIcons[page].title.plus(hotIcons[page].id),
-            )
-            Text(
-                text = "88888",
-            )
-            Text(
-                text = "77777"
-            )
-            Text(
-                text = "66666"
-            )
-            Text(
-                text = "55555"
-            )
-            Text(
-                text = "44444"
-            )
-            Text(
-                text = "33333"
-            )
-            Text(
-                text = "22222"
-            )
-            Text(
-                text = "11111"
-            )
-            Text(
-                text = "00000"
-            )
+        StaggeredVerticalGrid(
+            maxColumnWidth = 220.dp,
+            modifier = Modifier.padding(4.dp)
+        ) {
+            hotIcons.forEach { hotIcon ->
+                ViewPagerHotIcon(hotIcon)
+            }
         }
     }
+}
+
+@Composable
+fun ViewPagerHotIcon(hotIcon: HotIcon) {
+    Surface(
+        modifier = Modifier.padding(4.dp),
+        color = MaterialTheme.colors.surface,
+//        elevation = OwlTheme.elevations.card,
+        shape = MaterialTheme.shapes.medium
+    ) {
+        AsyncImage(
+            model = hotIcon.url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+        )
+    }
+
+}
+
+
+@Composable
+fun StaggeredVerticalGrid(
+    modifier: Modifier = Modifier,
+    maxColumnWidth: Dp,
+    content: @Composable () -> Unit
+) {
+    Layout(
+        content = content,
+        modifier = modifier
+    ) { measurables, constraints ->
+        check(constraints.hasBoundedWidth) {
+            "Unbounded width not supported"
+        }
+        val columns = ceil(constraints.maxWidth / maxColumnWidth.toPx()).toInt()
+        val columnWidth = constraints.maxWidth / columns
+        val itemConstraints = constraints.copy(maxWidth = columnWidth)
+        val colHeights = IntArray(columns) { 0 } // track each column's height
+        val placeables = measurables.map { measurable ->
+            val column = shortestColumn(colHeights)
+            val placeable = measurable.measure(itemConstraints)
+            colHeights[column] += placeable.height
+            placeable
+        }
+
+        val height = colHeights.maxOrNull()?.coerceIn(constraints.minHeight, constraints.maxHeight)
+            ?: constraints.minHeight
+        layout(
+            width = constraints.maxWidth,
+            height = height
+        ) {
+            val colY = IntArray(columns) { 0 }
+            placeables.forEach { placeable ->
+                val column = shortestColumn(colY)
+                placeable.place(
+                    x = columnWidth * column,
+                    y = colY[column]
+                )
+                colY[column] += placeable.height
+            }
+        }
+    }
+}
+
+private fun shortestColumn(colHeights: IntArray): Int {
+    var minHeight = Int.MAX_VALUE
+    var column = 0
+    colHeights.forEachIndexed { index, height ->
+        if (height < minHeight) {
+            minHeight = height
+            column = index
+        }
+    }
+    return column
 }
