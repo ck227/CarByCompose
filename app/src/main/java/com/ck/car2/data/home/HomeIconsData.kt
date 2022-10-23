@@ -11,12 +11,12 @@ val homeIcon0 = HotIcon(
 val homeIcon1 = homeIcon0.copy(
     id = 1,
     title = "肉禽蛋",
-    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01d6095a2f5254a80120ba38814500.jpg%401280w_1l_2o_100sh.jpg&refer=http%3A%2F%2Fimg.zcool.cn&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668676246&t=d2ff8350e3da5d17d47e1f35bf0522f2"
+    url = "https://img0.baidu.com/it/u=3979456364,1114672637&fm=253&fmt=auto&app=138&f=JPEG?w=749&h=500"
 )
 val homeIcon2 = homeIcon0.copy(
     id = 2,
     title = "海鲜水产",
-    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fhbimg.huabanimg.com%2F0baa12a2e165726b6327bf6390705d30e569e02a131c3f-RsTsPp_fw658&refer=http%3A%2F%2Fhbimg.huabanimg.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668675049&t=bf3da0706267914544f7c1c58c0d6550"
+    url = "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fhbimg.huabanimg.com%2F535d6ea62026fe271bb0e61f2bf3c872632542d71602d9-GGkDfw_fw658&refer=http%3A%2F%2Fhbimg.huabanimg.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1668675049&t=bd6643911e83626217c39e03645dca4a"
 )
 val homeIcon3 = homeIcon0.copy(
     id = 3,

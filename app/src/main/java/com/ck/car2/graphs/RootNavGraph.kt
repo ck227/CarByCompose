@@ -11,8 +11,9 @@ import com.ck.car2.viewmodels.HomeViewModel
 
 @Composable
 fun RootNavigationGraph(
-    appContainer:AppContainer,
-    navController: NavHostController) {
+    appContainer: AppContainer,
+    navController: NavHostController
+) {
     NavHost(
         navController = navController,
         startDestination = Graph.LAUNCH
@@ -23,13 +24,16 @@ fun RootNavigationGraph(
                 factory = HomeViewModel.provideFactory(appContainer.homeRepository)
             )
             HomeScreen(
-                homeViewModel = homeViewModel
+                homeViewModel = homeViewModel,
+                rootController = navController
             )
         }
+        detailGraph(navController)
     }
 }
 
 object Graph {
     const val LAUNCH = "launch_graph"
     const val HOME = "home_graph"
+    const val DETAIL = "detail_graph"
 }

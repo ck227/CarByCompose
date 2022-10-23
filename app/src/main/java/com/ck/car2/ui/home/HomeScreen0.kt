@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
@@ -40,6 +41,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
+import com.ck.car2.graphs.Graph
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
@@ -56,7 +58,9 @@ import kotlin.math.min
 
 @Composable
 fun HomeScreen0(
-    homeViewModel: HomeViewModel, navController: NavHostController
+    homeViewModel: HomeViewModel,
+    navController: NavHostController,
+    rootController: NavController,
 ) {
     val systemUiController = rememberSystemUiController()
     val uiState by homeViewModel.uiState.collectAsState()
@@ -86,7 +90,10 @@ fun HomeScreen0(
                 } else if (bannerColorMap[position] != null) {
                     bannerBgColor = bannerColorMap[position]!!
                 }
-            }, bannerBgColor = bannerBgColor, scroll = scroll
+            }, bannerBgColor = bannerBgColor, scroll = scroll,
+                gridItemSelected = { gridItemId ->
+                    rootController.navigate(Graph.DETAIL)
+                }
             )
         }
         HomeTopAppBar(scroll = scroll)
@@ -264,7 +271,8 @@ fun body(
     getBannerColor: (color: Color, position: String) -> Unit,
     setBannerColor: (color: Color?, position: String) -> Unit,
     bannerBgColor: Color,
-    scroll: ScrollState
+    scroll: ScrollState,
+    gridItemSelected: (photoId: Int) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -292,6 +300,7 @@ fun body(
 
             PhotoGrid(
                 (uiState as HomeUiState.HasPosts).hotIcons,
+                gridItemSelected
             )
             HomeViewPager(uiState.hotIcons, scroll)
         }
@@ -464,7 +473,7 @@ fun BannerItem(
 
 
 @Composable
-fun PhotoGrid(hotItems: List<HotIcon>) {
+fun PhotoGrid(hotItems: List<HotIcon>, gridItemSelected: (photoId: Int) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),
         modifier = Modifier
@@ -474,13 +483,13 @@ fun PhotoGrid(hotItems: List<HotIcon>) {
         userScrollEnabled = false
     ) {
         items(hotItems) {
-            PhotoItem(it)
+            PhotoItem(it, gridItemSelected)
         }
     }
 }
 
 @Composable
-fun PhotoItem(hotIcon: HotIcon) {
+fun PhotoItem(hotIcon: HotIcon, gridItemSelected: (photoId: Int) -> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -492,6 +501,9 @@ fun PhotoItem(hotIcon: HotIcon) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(14.dp))
+                .clickable {
+                    gridItemSelected(hotIcon.id)
+                }
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(

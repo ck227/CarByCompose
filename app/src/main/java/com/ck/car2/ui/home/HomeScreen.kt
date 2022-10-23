@@ -31,7 +31,8 @@ import com.ck.car2.viewmodels.HomeViewModel
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    rootController: NavController
 ) {
     Scaffold(
         bottomBar = {
@@ -40,6 +41,7 @@ fun HomeScreen(
         HomeNavGraph(
             homeViewModel = homeViewModel,
             navController,
+            rootController,
             modifier = Modifier.padding(innerPadding)
         )
     }
