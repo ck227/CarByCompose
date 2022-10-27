@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ck.car2.CarByComposeAppState
 import com.ck.car2.ui.home.*
 import com.ck.car2.viewmodels.HomeViewModel
 
@@ -14,6 +15,7 @@ fun HomeNavGraph(
     homeViewModel: HomeViewModel,
     navController: NavHostController,
     rootController: NavController,
+    appState: CarByComposeAppState,
     modifier: Modifier
 ) {
     NavHost(
@@ -23,7 +25,8 @@ fun HomeNavGraph(
             HomeScreen0(
                 homeViewModel = homeViewModel,
                 navController = navController,
-                rootController = rootController
+                rootController = rootController,
+                appState = appState
             )
         }
         composable(route = "home1") {

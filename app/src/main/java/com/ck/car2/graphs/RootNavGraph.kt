@@ -5,14 +5,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.ck.car2.CarByComposeAppState
 import com.ck.car2.data.AppContainer
+import com.ck.car2.rememberCarByComposeAppState
 import com.ck.car2.ui.home.HomeScreen
 import com.ck.car2.viewmodels.HomeViewModel
 
 @Composable
 fun RootNavigationGraph(
     appContainer: AppContainer,
-    navController: NavHostController
+    navController: NavHostController,
+    appState: CarByComposeAppState = rememberCarByComposeAppState()
 ) {
     NavHost(
         navController = navController,
@@ -25,7 +28,8 @@ fun RootNavigationGraph(
             )
             HomeScreen(
                 homeViewModel = homeViewModel,
-                rootController = navController
+                rootController = navController,
+                appState = appState
             )
         }
         detailGraph(navController)

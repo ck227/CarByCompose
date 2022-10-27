@@ -22,6 +22,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.ck.car2.CarByComposeAppState
 import com.ck.car2.R
 import com.ck.car2.graphs.HomeNavGraph
 import com.ck.car2.ui.theme.CarByComposeTheme
@@ -32,7 +33,8 @@ import com.ck.car2.viewmodels.HomeViewModel
 fun HomeScreen(
     homeViewModel: HomeViewModel,
     navController: NavHostController = rememberNavController(),
-    rootController: NavController
+    rootController: NavController,
+    appState: CarByComposeAppState
 ) {
     Scaffold(
         bottomBar = {
@@ -40,8 +42,9 @@ fun HomeScreen(
     }) { innerPadding ->
         HomeNavGraph(
             homeViewModel = homeViewModel,
-            navController,
-            rootController,
+            navController = navController,
+            rootController = rootController,
+            appState = appState,
             modifier = Modifier.padding(innerPadding)
         )
     }

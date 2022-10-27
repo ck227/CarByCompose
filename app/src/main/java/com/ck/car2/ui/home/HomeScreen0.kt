@@ -41,6 +41,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
+import com.ck.car2.CarByComposeAppState
 import com.ck.car2.graphs.Graph
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.theme.CarByComposeTheme
@@ -61,6 +62,7 @@ fun HomeScreen0(
     homeViewModel: HomeViewModel,
     navController: NavHostController,
     rootController: NavController,
+    appState: CarByComposeAppState,
 ) {
     val systemUiController = rememberSystemUiController()
     val uiState by homeViewModel.uiState.collectAsState()
@@ -82,19 +84,28 @@ fun HomeScreen0(
             color = Color.Transparent, darkIcons = scroll.value > 0
         )
         if (hasResult) {
-            body(uiState = uiState, getBannerColor = { color, position ->
-                homeViewModel.addBannerColor(position, color)
-            }, setBannerColor = { color, position ->
-                if (color != null) {
-                    bannerBgColor = color
-                } else if (bannerColorMap[position] != null) {
-                    bannerBgColor = bannerColorMap[position]!!
-                }
-            }, bannerBgColor = bannerBgColor, scroll = scroll,
+//            if (appState.isOnline) {
+            body(uiState = uiState,
+                getBannerColor = { color, position ->
+                    homeViewModel.addBannerColor(position, color)
+                },
+                setBannerColor = { color, position ->
+                    if (color != null) {
+                        bannerBgColor = color
+                    } else if (bannerColorMap[position] != null) {
+                        bannerBgColor = bannerColorMap[position]!!
+                    }
+                },
+                bannerBgColor = bannerBgColor,
+                scroll = scroll,
                 gridItemSelected = { gridItemId ->
                     rootController.navigate(Graph.DETAIL)
-                }
-            )
+                })
+//            } else {
+//                Text(text = "没有网络链接", modifier = Modifier.fillMaxWidth().fillMaxHeight().clickable {
+//                    appState.refreshOnline()
+//                })
+//            }
         }
         HomeTopAppBar(scroll = scroll)
         MySearchBar(
@@ -299,8 +310,7 @@ fun body(
             )
 
             PhotoGrid(
-                (uiState as HomeUiState.HasPosts).hotIcons,
-                gridItemSelected
+                (uiState as HomeUiState.HasPosts).hotIcons, gridItemSelected
             )
             HomeViewPager(uiState.hotIcons, scroll)
         }
@@ -494,8 +504,7 @@ fun PhotoItem(hotIcon: HotIcon, gridItemSelected: (photoId: Int) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        AsyncImage(
-            model = hotIcon.url,
+        AsyncImage(model = hotIcon.url,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -503,8 +512,7 @@ fun PhotoItem(hotIcon: HotIcon, gridItemSelected: (photoId: Int) -> Unit) {
                 .clip(RoundedCornerShape(14.dp))
                 .clickable {
                     gridItemSelected(hotIcon.id)
-                }
-        )
+                })
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             modifier = Modifier.height(16.dp),
@@ -531,8 +539,7 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
                 state = pagerState,
             ) { page ->
                 StaggeredVerticalGrid(
-                    maxColumnWidth = 220.dp,
-                    modifier = Modifier.padding(4.dp)
+                    maxColumnWidth = 220.dp, modifier = Modifier.padding(4.dp)
                 ) {
                     hotIcons.forEach { hotIcon ->
                         ViewPagerHotIcon(hotIcon)
@@ -543,29 +550,23 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
 
         ScrollableTabRow(
             // Our selected tab is our current page
-            selectedTabIndex = pagerState.currentPage,
-            modifier = Modifier
-                .offset {
+            selectedTabIndex = pagerState.currentPage, modifier = Modifier.offset {
                     val offset = if (scroll.value < maxOffset) {
                         0
                     } else {
                         scroll.value - maxOffset
                     }
                     IntOffset(x = 0, y = offset)
-                },
-            edgePadding = 0.dp,
-            backgroundColor = CarByComposeTheme.colors.uiBackground,
+                }, edgePadding = 0.dp, backgroundColor = CarByComposeTheme.colors.uiBackground,
             // Override the indicator, using the provided pagerTabIndicatorOffset modifier
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     height = 0.dp,
                     modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
                 )
-            },
-            divider = {
+            }, divider = {
 
-            }
-        ) {
+            }) {
             // Add tabs for all of our pages
             hotIcons.forEachIndexed { index, hotIcon ->
                 val selected = pagerState.currentPage == index
@@ -638,13 +639,10 @@ fun ViewPagerHotIcon(hotIcon: HotIcon) {
 
 @Composable
 fun StaggeredVerticalGrid(
-    modifier: Modifier = Modifier,
-    maxColumnWidth: Dp,
-    content: @Composable () -> Unit
+    modifier: Modifier = Modifier, maxColumnWidth: Dp, content: @Composable () -> Unit
 ) {
     Layout(
-        content = content,
-        modifier = modifier
+        content = content, modifier = modifier
     ) { measurables, constraints ->
         check(constraints.hasBoundedWidth) {
             "Unbounded width not supported"
@@ -663,15 +661,13 @@ fun StaggeredVerticalGrid(
         val height = colHeights.maxOrNull()?.coerceIn(constraints.minHeight, constraints.maxHeight)
             ?: constraints.minHeight
         layout(
-            width = constraints.maxWidth,
-            height = height
+            width = constraints.maxWidth, height = height
         ) {
             val colY = IntArray(columns) { 0 }
             placeables.forEach { placeable ->
                 val column = shortestColumn(colY)
                 placeable.place(
-                    x = columnWidth * column,
-                    y = colY[column]
+                    x = columnWidth * column, y = colY[column]
                 )
                 colY[column] += placeable.height
             }
