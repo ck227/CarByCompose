@@ -30,7 +30,9 @@ fun HomeNavGraph(
             )
         }
         composable(route = "home1") {
-            HomeScreen1(navController = navController)
+            HomeScreen1(
+                homeViewModel = homeViewModel,
+                navController = navController)
         }
         composable(route = "home2") {
             HomeScreen2(navController = navController)

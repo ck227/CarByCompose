@@ -25,6 +25,7 @@ sealed interface HomeUiState {
         override val searchInput: String
     ) : HomeUiState
 
+    //有数据的情况
     data class HasPosts(
         val hotIcons: List<HotIcon>,
         override val isLoading: Boolean,

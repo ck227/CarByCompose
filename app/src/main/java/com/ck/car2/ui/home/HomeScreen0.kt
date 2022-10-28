@@ -109,10 +109,12 @@ fun HomeScreen0(
         }
         HomeTopAppBar(scroll = scroll)
         MySearchBar(
-            screenWidth = screenWidth, bannerBgColor = bannerBgColor
-        ) {
-            scroll.value
-        }
+            screenWidth = screenWidth,
+            bannerBgColor = bannerBgColor,
+            scrollProvider = {
+                scroll.value
+            }
+        )
     }
 }
 
@@ -551,13 +553,13 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
         ScrollableTabRow(
             // Our selected tab is our current page
             selectedTabIndex = pagerState.currentPage, modifier = Modifier.offset {
-                    val offset = if (scroll.value < maxOffset) {
-                        0
-                    } else {
-                        scroll.value - maxOffset
-                    }
-                    IntOffset(x = 0, y = offset)
-                }, edgePadding = 0.dp, backgroundColor = CarByComposeTheme.colors.uiBackground,
+                val offset = if (scroll.value < maxOffset) {
+                    0
+                } else {
+                    scroll.value - maxOffset
+                }
+                IntOffset(x = 0, y = offset)
+            }, edgePadding = 0.dp, backgroundColor = CarByComposeTheme.colors.uiBackground,
             // Override the indicator, using the provided pagerTabIndicatorOffset modifier
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(

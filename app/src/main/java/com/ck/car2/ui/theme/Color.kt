@@ -26,6 +26,7 @@ val color_white80 = Color(0x80FFFFFF)
 val color_grey333 = Color(0xFF333333)
 val color_grey666 = Color(0xFF666666)
 val color_grey999 = Color(0xFF999999)
+val color_light_green = Color(0xFFE9F1E9)
 
 const val AlphaNearOpaque = 0.95f
 

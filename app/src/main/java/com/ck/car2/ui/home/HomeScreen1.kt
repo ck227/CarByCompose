@@ -1,77 +1,146 @@
 package com.ck.car2.ui.home
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalProvider
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import kotlin.math.roundToInt
+import coil.compose.AsyncImage
+import com.ck.car2.model.HotIcon
+import com.ck.car2.ui.theme.CarByComposeTheme
+import com.ck.car2.ui.theme.color_light_green
+import com.ck.car2.viewmodels.HomeUiState
+import com.ck.car2.viewmodels.HomeViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
-fun HomeScreen1(navController: NavHostController) {
-    // here we use LazyColumn that has build-in nested scroll, but we want to act like a
-// parent for this LazyColumn and participate in its nested scroll.
-// Let's make a collapsing toolbar for LazyColumn
-    val toolbarHeight = 48.dp
-    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
-// our offset to collapse toolbar
-    val toolbarOffsetHeightPx =
-
-        remember { mutableStateOf(0f) }
-// now, let's create connection to the nested scroll system and listen to the scroll
-// happening inside child LazyColumn
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                // try to consume before LazyColumn to collapse toolbar if needed, hence pre-scroll
-                val delta = available.y
-                val newOffset = toolbarOffsetHeightPx.value + delta
-                toolbarOffsetHeightPx.value = newOffset.coerceIn(-toolbarHeightPx, 0f)
-                // here's the catch: let's pretend we consumed 0 in any case, since we want
-                // LazyColumn to scroll anyway for good UX
-                // We're basically watching scroll without taking it
-                return Offset.Zero
-            }
-        }
+fun HomeScreen1(
+    homeViewModel: HomeViewModel,
+    navController: NavHostController
+) {
+    val systemUiController = rememberSystemUiController()
+    val uiState by homeViewModel.uiState.collectAsState()
+    val hasResult = when (uiState) {
+        is HomeUiState.HasPosts -> true
+        is HomeUiState.NoPosts -> false
     }
-    Box(
-        Modifier
-            .fillMaxSize()
-            // attach as a parent to the nested scroll system
-            .nestedScroll(nestedScrollConnection)
-    ) {
-        // our list with build in nested scroll support that will notify us about its scroll
-        LazyColumn(contentPadding = PaddingValues(top = toolbarHeight)) {
-            items(100) { index ->
+
+    systemUiController.setStatusBarColor(
+        color = Color.Transparent, darkIcons = true
+    )
+    Column() {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = color_light_green)
+                .statusBarsPadding()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, top = 6.dp, end = 12.dp, bottom = 6.dp)
+                    .height(30.dp)
+                    .border(
+                        width = 1.dp,
+                        color = CarByComposeTheme.colors.primary,
+                        shape = RoundedCornerShape(15.dp)
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 6.dp)
+                        .size(18.dp),
+                    tint = CarByComposeTheme.colors.homeSearchBarTextColor
+                )
                 Text(
-                    "I'm item $index", modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    text = "搜索您想要的商品",
+                    color = CarByComposeTheme.colors.homeSearchBarTextColor,
+                    fontSize = 12.sp,
                 )
             }
+            if (hasResult) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                ) {
+                    (uiState as HomeUiState.HasPosts).hotIcons.forEach { message ->
+                        TitleRowItem(message, gridItemSelected = { gridItem ->
+
+                        })
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
-        TopAppBar(
+        Row {
+            RowLeft()
+        }
+    }
+}
+
+@Composable
+fun TitleRowItem(hotIcon: HotIcon, gridItemSelected: (photoId: Int) -> Unit) {
+    Column(
+        modifier = Modifier.padding(start = 12.dp, end = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        AsyncImage(model = hotIcon.url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .height(toolbarHeight)
-                .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.value.roundToInt()) },
-            title = { Text("toolbar offset is ${toolbarOffsetHeightPx.value}") }
+                .size(36.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {
+                    gridItemSelected(hotIcon.id)
+                })
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = hotIcon.title,
+            fontSize = 11.sp,
+            color = CarByComposeTheme.colors.homeIconText
         )
     }
+}
+
+@Composable
+fun RowLeft() {
+    Column(
+        modifier = Modifier.width(120.dp)
+    ) {
+        repeat(100) {
+            Text(
+                text = "分类",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .background(color = CarByComposeTheme.colors.homeTabDescTextUnSelect),
+                textAlign = TextAlign.Center,
+
+            )
+        }
+    }
+
+
 }
