@@ -40,7 +40,16 @@ private val LightColorPalette = CarByComposeColors(
     home_tab_desc_text_select = color_white,
     home_tab_desc_text_un_select = color_grey999,
     home_search_bar_text_color = color_grey999,
-)
+
+    /**
+     * 首页home1
+     */
+    home_category_select = color_white,
+    home_category_un_select = color_light_grey,
+    color_home_category_title_un_select = color_home_category_title_un_select,
+    color_home_category_left_un_select = color_home_category_left_un_select,
+
+    )
 
 /*private val DarkColorPalette = CarByComposeColors(
     is_dark = true,
@@ -99,6 +108,10 @@ class CarByComposeColors(
     home_tab_desc_text_select: Color,
     home_tab_desc_text_un_select: Color,
     home_search_bar_text_color: Color,
+    home_category_select: Color,
+    home_category_un_select: Color,
+    color_home_category_title_un_select: Color,
+    color_home_category_left_un_select: Color,
 ) {
     var isDark by mutableStateOf(is_dark)
     var primary by mutableStateOf(primary)
@@ -114,6 +127,10 @@ class CarByComposeColors(
     var homeTabDescTextSelect by mutableStateOf(home_tab_desc_text_select)
     var homeTabDescTextUnSelect by mutableStateOf(home_tab_desc_text_un_select)
     var homeSearchBarTextColor by mutableStateOf(home_search_bar_text_color)
+    var homeCategorySelect by mutableStateOf(home_category_select)
+    var homeCategoryUnSelect by mutableStateOf(home_category_un_select)
+    var homeCategoryTitleUnSelect by mutableStateOf(color_home_category_title_un_select)
+    var homeCategoryLeftUnSelect by mutableStateOf(color_home_category_left_un_select)
 
     fun update(other: CarByComposeColors) {
         isDark = other.isDark
@@ -130,6 +147,10 @@ class CarByComposeColors(
         homeTabDescTextSelect = other.homeTabDescTextSelect
         homeTabDescTextUnSelect = other.homeTabDescTextUnSelect
         homeSearchBarTextColor = other.homeSearchBarTextColor
+        homeCategorySelect = other.homeCategorySelect
+        homeCategoryUnSelect = other.homeCategoryUnSelect
+        homeCategoryTitleUnSelect = other.homeCategoryTitleUnSelect
+        homeCategoryLeftUnSelect = other.homeCategoryLeftUnSelect
     }
 
     fun copy(): CarByComposeColors = CarByComposeColors(
@@ -147,6 +168,10 @@ class CarByComposeColors(
         home_tab_desc_text_select = homeTabDescTextSelect,
         home_tab_desc_text_un_select = homeTabDescTextUnSelect,
         home_search_bar_text_color = homeSearchBarTextColor,
+        home_category_select = homeCategorySelect,
+        home_category_un_select = homeCategoryUnSelect,
+        color_home_category_title_un_select = homeCategoryTitleUnSelect,
+        color_home_category_left_un_select = homeCategoryLeftUnSelect,
     )
 }
 

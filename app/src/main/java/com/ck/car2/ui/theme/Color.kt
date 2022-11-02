@@ -26,7 +26,24 @@ val color_white80 = Color(0x80FFFFFF)
 val color_grey333 = Color(0xFF333333)
 val color_grey666 = Color(0xFF666666)
 val color_grey999 = Color(0xFF999999)
-val color_light_green = Color(0xFFE9F1E9)
+val color_light_grey = Color(0xFFF9F9F9)
+
+val color_home_category_title_un_select = Color(0xFF626760)
+val color_home_category_left_un_select = Color(0xFF696969)
+
+
+
+
+
+val color_light_green = Color(0xFFF3FDF5)
+val color_dark_red = Color(0xFFFF0000)
+val color_light_red = Color(0xFFEB725C)
+val color_divider = Color(0xFFE5E5E5)
+
+
+
+
+
 
 const val AlphaNearOpaque = 0.95f
 

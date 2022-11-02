@@ -40,21 +40,18 @@ private data class HomeViewModelState(
     val errorMessages: List<ErrorMessage> = emptyList(),
     val searchInput: String = "",
 ) {
-    fun toUiState(): HomeUiState =
-        if (hotIcons == null) {
-            HomeUiState.NoPosts(
-                isLoading = isLoading,
-                errorMessages = errorMessages,
-                searchInput = searchInput
-            )
-        } else {
-            HomeUiState.HasPosts(
-                hotIcons = hotIcons,
-                isLoading = isLoading,
-                errorMessages = errorMessages,
-                searchInput = searchInput
-            )
-        }
+    fun toUiState(): HomeUiState = if (hotIcons == null) {
+        HomeUiState.NoPosts(
+            isLoading = isLoading, errorMessages = errorMessages, searchInput = searchInput
+        )
+    } else {
+        HomeUiState.HasPosts(
+            hotIcons = hotIcons,
+            isLoading = isLoading,
+            errorMessages = errorMessages,
+            searchInput = searchInput
+        )
+    }
 }
 
 
@@ -62,13 +59,16 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
     private val viewModelState = MutableStateFlow(HomeViewModelState(isLoading = true))
 
+    //顶部轮播图的颜色
     private val _bannerColorMap: MutableStateFlow<Map<String, Color>> = MutableStateFlow(emptyMap())
     val bannerColorMap: StateFlow<Map<String, Color>> get() = _bannerColorMap
 
+    //选中的分类index
+    private val _selectTypePosition: MutableStateFlow<Int> = MutableStateFlow(0)
+    val selectTypePosition: StateFlow<Int> get() = _selectTypePosition
+
     val uiState = viewModelState.map { it.toUiState() }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        viewModelState.value.toUiState()
+        viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState()
     )
 
     init {
@@ -106,6 +106,10 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
         viewModelScope.launch {
             homeRepository.addBannerColor(position, color)
         }
+    }
+
+    fun updateTypeSelectIndex(index: Int) {
+        _selectTypePosition.value = index
     }
 
 
