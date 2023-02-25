@@ -38,14 +38,14 @@ fun HomeScreen(
 ) {
     Scaffold(
         bottomBar = {
-        MyBottomNavigation(navController = navController)
-    }) { innerPadding ->
+            MyBottomNavigation(navController = navController)
+        }) { contentPadding ->
         HomeNavGraph(
             homeViewModel = homeViewModel,
             navController = navController,
             rootController = rootController,
             appState = appState,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(contentPadding)
         )
     }
 }

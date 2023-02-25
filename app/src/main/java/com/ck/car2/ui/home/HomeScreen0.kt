@@ -1,6 +1,8 @@
 package com.ck.car2.ui.home
 
+import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate.NightMode
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
@@ -30,6 +32,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
@@ -80,8 +83,13 @@ fun HomeScreen0(
             .padding(bottom = 56.dp)
     ) {
         val scroll = rememberScrollState(0)
+        val showDark by remember {
+            derivedStateOf {
+                scroll.value > 0
+            }
+        }
         systemUiController.setStatusBarColor(
-            color = Color.Transparent, darkIcons = scroll.value > 0
+            color = Color.Transparent, darkIcons = showDark
         )
         if (hasResult) {
 //            if (appState.isOnline) {
@@ -161,6 +169,7 @@ fun HomeTopAppBar(
                     contentDescription = null,
                     tint = CarByComposeTheme.colors.uiBackground
                 )
+
             }
         },
         actions = {
@@ -204,6 +213,7 @@ fun CollapsingSearchBar(
 ) {
     val searchBarWidthBig = screenWidth
     val searchBarWidthSmall = screenWidth - 28.dp - 28.dp
+
     Layout(
         modifier = modifier, content = content
     ) { measurables, constraints ->
@@ -635,9 +645,21 @@ fun ViewPagerHotIcon(hotIcon: HotIcon) {
             contentScale = ContentScale.Crop,
         )
     }
-
 }
 
+
+@Preview(
+    uiMode = UI_MODE_NIGHT_MASK,
+    showBackground = true,
+    showSystemUi = true,
+    backgroundColor = 0XFF999999,
+    widthDp = 100,
+    heightDp = 100
+)
+@Composable
+fun PreviewViewPagerHotIcon() {
+    ViewPagerHotIcon(HotIcon(1, "66", ""))
+}
 
 @Composable
 fun StaggeredVerticalGrid(
@@ -688,3 +710,5 @@ private fun shortestColumn(colHeights: IntArray): Int {
     }
     return column
 }
+
+

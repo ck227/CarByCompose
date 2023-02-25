@@ -11,7 +11,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-class FakeHomeRepository : HomeRepository {
+class FakeHomeRepository() : HomeRepository {
 
     private val tag = "FakeHomeRepository"
 
