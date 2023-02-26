@@ -63,9 +63,8 @@ import kotlin.math.min
 @Composable
 fun HomeScreen0(
     homeViewModel: HomeViewModel,
-    navController: NavHostController,
-    rootController: NavController,
     appState: CarByComposeAppState,
+    navigateToDetail: () -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
     val uiState by homeViewModel.uiState.collectAsState()
@@ -107,7 +106,7 @@ fun HomeScreen0(
                 bannerBgColor = bannerBgColor,
                 scroll = scroll,
                 gridItemSelected = { gridItemId ->
-                    rootController.navigate(Graph.DETAIL)
+                    navigateToDetail()
                 })
 //            } else {
 //                Text(text = "没有网络链接", modifier = Modifier.fillMaxWidth().fillMaxHeight().clickable {

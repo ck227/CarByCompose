@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -33,19 +32,18 @@ import com.ck.car2.viewmodels.HomeViewModel
 fun HomeScreen(
     homeViewModel: HomeViewModel,
     navController: NavHostController = rememberNavController(),
-    rootController: NavController,
-    appState: CarByComposeAppState
+    appState: CarByComposeAppState,
+    navigateToDetail: () -> Unit
 ) {
-    Scaffold(
-        bottomBar = {
-            MyBottomNavigation(navController = navController)
-        }) { contentPadding ->
+    Scaffold(bottomBar = {
+        MyBottomNavigation(navController = navController)
+    }) { contentPadding ->
         HomeNavGraph(
             homeViewModel = homeViewModel,
             navController = navController,
-            rootController = rootController,
             appState = appState,
-            modifier = Modifier.padding(contentPadding)
+            modifier = Modifier.padding(contentPadding),
+            navigateToDetail = navigateToDetail
         )
     }
 }
@@ -70,7 +68,7 @@ private fun MyBottomNavigation(navController: NavController, modifier: Modifier 
                             saveState = true
                         }
                         // Avoid multiple copies of the same destination when
-                        // reselecting the same item
+                        // re-selecting the same item
                         launchSingleTop = true
                         // Restore state when reselecting a previously selected item
                         restoreState = true

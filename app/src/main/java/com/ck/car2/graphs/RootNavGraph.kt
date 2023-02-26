@@ -1,6 +1,9 @@
 package com.ck.car2.graphs
 
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -9,7 +12,9 @@ import com.ck.car2.CarByComposeAppState
 import com.ck.car2.data.AppContainer
 import com.ck.car2.rememberCarByComposeAppState
 import com.ck.car2.ui.home.HomeScreen
+import com.ck.car2.ui.home.LaunchScreen
 import com.ck.car2.viewmodels.HomeViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootNavigationGraph(
@@ -17,22 +22,36 @@ fun RootNavigationGraph(
     navController: NavHostController,
     appState: CarByComposeAppState = rememberCarByComposeAppState()
 ) {
+    //appState应该是使用compositionLocal来传递
     NavHost(
         navController = navController,
-        startDestination = Graph.LAUNCH
+        startDestination = Graph.LAUNCH,
+        modifier = Modifier.navigationBarsPadding()
     ) {
-        launchGraph(navController)
+        //启动页面，跳转至主页面
+        composable(route = Graph.LAUNCH) {
+            LaunchScreen(onTimeOut = {
+                navController.navigate(Graph.HOME) {
+                    popUpTo(Graph.LAUNCH) {
+                        inclusive = true
+                    }
+                }
+            })
+        }
+        //主页面，跳转至详情
         composable(route = Graph.HOME) {
             val homeViewModel: HomeViewModel = viewModel(
                 factory = HomeViewModel.provideFactory(appContainer.homeRepository)
             )
             HomeScreen(
                 homeViewModel = homeViewModel,
-                rootController = navController,
-                appState = appState
+                appState = appState,
+                navigateToDetail = {
+                    navController.navigate(Graph.DETAIL.plus("/wocao/666"))
+                }
             )
         }
-        detailGraph(navController)
+        detailGraph()
     }
 }
 
