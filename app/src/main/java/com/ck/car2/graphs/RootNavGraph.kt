@@ -18,7 +18,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun RootNavigationGraph(
-    appContainer: AppContainer,
+//    appContainer: AppContainer,
     navController: NavHostController,
     appState: CarByComposeAppState = rememberCarByComposeAppState()
 ) {

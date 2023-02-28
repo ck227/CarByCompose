@@ -1,15 +1,19 @@
 package com.ck.car2.data.home
 
-import androidx.compose.ui.graphics.Color
-import com.ck.car2.model.HotIcon
-import com.ck.car2.data.Result
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import com.ck.car2.data.mockdata.Dog
+import com.ck.car2.network.ApiService
+
 
 interface HomeRepository {
-//    suspend fun getHotIcons(): Result<List<HotIcon>>
+    suspend fun getBanner(): Dog
 
-    suspend fun addBannerColor(position: String, color: Color)
+    /*suspend fun addBannerColor(position: String, color: Color)
 
-    fun observeBannerColor(): Flow<Map<String, Color>>
+    fun observeBannerColor(): Flow<Map<String, Color>>*/
+}
+
+class DefaultHomeRepository(private val apiService: ApiService) : HomeRepository {
+    override suspend fun getBanner(): Dog {
+        return apiService.getBanners()
+    }
 }

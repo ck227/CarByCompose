@@ -2,7 +2,7 @@ package com.ck.car2
 
 import android.app.Application
 import com.ck.car2.data.AppContainer
-import com.ck.car2.data.AppContainerImpl
+import com.ck.car2.data.DefaultAppContainer
 
 class CarByComposeApplication : Application() {
 
@@ -10,6 +10,6 @@ class CarByComposeApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainerImpl(this)
+        container = DefaultAppContainer()
     }
 }

@@ -64,7 +64,8 @@ fun HomeScreen0(
     modifier: Modifier, appState: CarByComposeAppState, navigateToDetail: () -> Unit
 ) {
 //    if (appState.isOnline) {
-    val homeViewModel: HomeViewModel = viewModel()
+//    val homeViewModel: HomeViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
     when (val homeUiState = homeViewModel.homeUiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
         is HomeUiState.Success -> ResultScreen(
