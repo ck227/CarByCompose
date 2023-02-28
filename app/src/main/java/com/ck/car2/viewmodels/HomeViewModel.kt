@@ -1,5 +1,9 @@
 package com.ck.car2.viewmodels
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,57 +11,25 @@ import androidx.lifecycle.viewModelScope
 import com.ck.car2.R
 import com.ck.car2.data.Result
 import com.ck.car2.data.home.HomeRepository
+import com.ck.car2.data.mockdata.Dog
 import com.ck.car2.model.HotIcon
+import com.ck.car2.network.Api
 import com.ck.car2.utils.ErrorMessage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
 sealed interface HomeUiState {
-    val isLoading: Boolean
-    val errorMessages: List<ErrorMessage>
-    val searchInput: String
-
-    //没有数据的情况
-    data class NoPosts(
-        override val isLoading: Boolean,
-        override val errorMessages: List<ErrorMessage>,
-        override val searchInput: String
-    ) : HomeUiState
-
-    //有数据的情况
-    data class HasPosts(
-        val hotIcons: List<HotIcon>,
-        override val isLoading: Boolean,
-        override val errorMessages: List<ErrorMessage>,
-        override val searchInput: String
-    ) : HomeUiState
-}
-
-private data class HomeViewModelState(
-    val hotIcons: List<HotIcon>? = null,
-    val isLoading: Boolean = false,
-    val errorMessages: List<ErrorMessage> = emptyList(),
-    val searchInput: String = "",
-) {
-    fun toUiState(): HomeUiState = if (hotIcons == null) {
-        HomeUiState.NoPosts(
-            isLoading = isLoading, errorMessages = errorMessages, searchInput = searchInput
-        )
-    } else {
-        HomeUiState.HasPosts(
-            hotIcons = hotIcons,
-            isLoading = isLoading,
-            errorMessages = errorMessages,
-            searchInput = searchInput
-        )
-    }
+    data class Success(val dog: Dog) : HomeUiState
+    object Error : HomeUiState
+    object Loading : HomeUiState
 }
 
 
-class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
+class HomeViewModel : ViewModel() {
 
-    private val viewModelState = MutableStateFlow(HomeViewModelState(isLoading = true))
+    var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
+        private set
 
     //顶部轮播图的颜色
     private val _bannerColorMap: MutableStateFlow<Map<String, Color>> = MutableStateFlow(emptyMap())
@@ -67,21 +39,31 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
     private val _selectTypePosition: MutableStateFlow<Int> = MutableStateFlow(0)
     val selectTypePosition: StateFlow<Int> get() = _selectTypePosition
 
-    val uiState = viewModelState.map { it.toUiState() }.stateIn(
-        viewModelScope, SharingStarted.Eagerly, viewModelState.value.toUiState()
-    )
 
     init {
-        refreshHotIcons()
+        getBanners()
 
+//        viewModelScope.launch {
+//            homeRepository.observeBannerColor().collect { bannerColorMap ->
+//                _bannerColorMap.value = bannerColorMap
+//            }
+//        }
+    }
+
+
+    private fun getBanners() {
         viewModelScope.launch {
-            homeRepository.observeBannerColor().collect { bannerColorMap ->
-                _bannerColorMap.value = bannerColorMap
+            homeUiState = try {
+                val listResult = Api.retrofitService.getBanners()
+                HomeUiState.Success(listResult)
+            } catch (e: Exception) {
+                e.message?.let { Log.e("ck", it) }
+                HomeUiState.Error
             }
         }
     }
 
-    private fun refreshHotIcons() {
+    /*private fun refreshHotIcons() {
         // Ui state is refreshing
         viewModelState.update { it.copy(isLoading = true) }
 
@@ -100,9 +82,9 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                 }
             }
         }
-    }
+    }*/
 
-    fun addBannerColor(position: String, color: Color) {
+    /*fun addBannerColor(position: String, color: Color) {
         viewModelScope.launch {
             homeRepository.addBannerColor(position, color)
         }
@@ -110,10 +92,10 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
     fun updateTypeSelectIndex(index: Int) {
         _selectTypePosition.value = index
-    }
+    }*/
 
 
-    companion object {
+    /*companion object {
         fun provideFactory(
             homeRepository: HomeRepository
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
@@ -122,7 +104,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
                 return HomeViewModel(homeRepository) as T
             }
         }
-    }
+    }*/
 
 }
 

@@ -31,10 +31,8 @@ import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
-fun HomeScreen1(
-    homeViewModel: HomeViewModel, navController: NavHostController
-) {
-    val systemUiController = rememberSystemUiController()
+fun HomeScreen1() {
+    /*val systemUiController = rememberSystemUiController()
     val uiState by homeViewModel.uiState.collectAsState()
     val selectTypePosition by homeViewModel.selectTypePosition.collectAsState()
     val hasResult = when (uiState) {
@@ -98,7 +96,7 @@ fun HomeScreen1(
             RowLeft((uiState as HomeUiState.HasPosts).hotIcons)
             RowRight((uiState as HomeUiState.HasPosts).hotIcons)
         }
-    }
+    }*/
 }
 
 @Composable
@@ -213,7 +211,9 @@ fun RowRight(hotIcons: List<HotIcon>) {
                     model = hotIcon.url,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(80.dp).clip(RoundedCornerShape(20))
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(20))
                 )
                 Column(
                     modifier = Modifier.padding(start = 12.dp)

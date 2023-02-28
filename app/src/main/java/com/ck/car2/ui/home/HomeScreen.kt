@@ -30,7 +30,7 @@ import com.ck.car2.viewmodels.HomeViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel,
+//    homeViewModel: HomeViewModel,
     navController: NavHostController = rememberNavController(),
     appState: CarByComposeAppState,
     navigateToDetail: () -> Unit
@@ -39,7 +39,7 @@ fun HomeScreen(
         MyBottomNavigation(navController = navController)
     }) { contentPadding ->
         HomeNavGraph(
-            homeViewModel = homeViewModel,
+//            homeViewModel = homeViewModel,
             navController = navController,
             appState = appState,
             modifier = Modifier.padding(contentPadding),

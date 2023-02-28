@@ -2,7 +2,6 @@ package com.ck.car2.ui.home
 
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate.NightMode
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.PressInteraction
@@ -29,6 +28,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -36,8 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.palette.graphics.Palette
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
@@ -45,7 +45,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.ck.car2.CarByComposeAppState
-import com.ck.car2.graphs.Graph
+import com.ck.car2.R
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
@@ -53,19 +53,30 @@ import com.ck.car2.viewmodels.HomeViewModel
 import com.google.accompanist.pager.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
+
 @Composable
 fun HomeScreen0(
-    homeViewModel: HomeViewModel,
+//    homeViewModel: HomeViewModel,
+    modifier: Modifier,
     appState: CarByComposeAppState,
     navigateToDetail: () -> Unit
 ) {
+
+    val homeViewModel: HomeViewModel = viewModel()
+    when (val homeUiState = homeViewModel.homeUiState) {
+        is HomeUiState.Loading -> LoadingScreen(modifier)
+        is HomeUiState.Success -> ResultScreen(homeUiState = homeUiState.dog.message, modifier)
+        is HomeUiState.Error -> ErrorScreen(modifier)
+    }
+
+    /*
+
     val systemUiController = rememberSystemUiController()
     val uiState by homeViewModel.uiState.collectAsState()
     val bannerColorMap by homeViewModel.bannerColorMap.collectAsState()
@@ -122,10 +133,44 @@ fun HomeScreen0(
                 scroll.value
             }
         )
+    }*/
+}
+
+@Composable
+fun LoadingScreen(modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Image(
+            modifier = Modifier.size(200.dp),
+            painter = painterResource(R.drawable.loading_img),
+            contentDescription = stringResource(R.string.loading)
+        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ResultScreen(homeUiState: String, modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.fillMaxSize()
+    ) {
+        androidx.compose.material.Text(homeUiState)
+    }
+}
+
+@Composable
+fun ErrorScreen(modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.fillMaxSize()
+    ) {
+        androidx.compose.material.Text(stringResource(R.string.loading_failed))
+    }
+}
+
+/*@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
     scroll: ScrollState
@@ -708,6 +753,6 @@ private fun shortestColumn(colHeights: IntArray): Int {
         }
     }
     return column
-}
+}*/
 
 

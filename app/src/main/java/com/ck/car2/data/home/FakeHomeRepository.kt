@@ -18,16 +18,16 @@ class FakeHomeRepository() : HomeRepository {
     private val mutex = Mutex()
     private val bannerColors = MutableStateFlow<Map<String, Color>>(mapOf())
 
-    override suspend fun getHotIcons(): Result<List<HotIcon>> {
-        return withContext(Dispatchers.IO) {
+    /*override suspend fun getHotIcons(): Result<List<HotIcon>> {
+        *//*return withContext(Dispatchers.IO) {
             delay(800) // pretend we're on a slow network
             if (shouldRandomlyFail()) {
                 Result.Error(IllegalStateException())
             } else {
                 Result.Success(homeIcons)
             }
-        }
-    }
+        }*//*
+    }*/
 
     override fun observeBannerColor(): Flow<Map<String, Color>> = bannerColors
 
@@ -38,14 +38,4 @@ class FakeHomeRepository() : HomeRepository {
             bannerColors.value = map.toMap()
         }
     }
-
-    private var requestCount = 0
-
-    /**
-     * Randomly fail some loads to simulate a real network.
-     *
-     * This will fail deterministically every 5 requests
-     */
-    private fun shouldRandomlyFail(): Boolean = ++requestCount % 5 == 0
-
 }

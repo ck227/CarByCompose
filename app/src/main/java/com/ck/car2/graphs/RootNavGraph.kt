@@ -40,11 +40,11 @@ fun RootNavigationGraph(
         }
         //主页面，跳转至详情
         composable(route = Graph.HOME) {
-            val homeViewModel: HomeViewModel = viewModel(
-                factory = HomeViewModel.provideFactory(appContainer.homeRepository)
-            )
+//            val homeViewModel: HomeViewModel = viewModel(
+//                factory = HomeViewModel.provideFactory(appContainer.homeRepository)
+//            )
             HomeScreen(
-                homeViewModel = homeViewModel,
+//                homeViewModel = homeViewModel,
                 appState = appState,
                 navigateToDetail = {
                     navController.navigate(Graph.DETAIL.plus("/wocao/666"))

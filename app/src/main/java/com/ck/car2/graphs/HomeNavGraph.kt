@@ -11,7 +11,7 @@ import com.ck.car2.viewmodels.HomeViewModel
 
 @Composable
 fun HomeNavGraph(
-    homeViewModel: HomeViewModel,
+//    homeViewModel: HomeViewModel,
     navController: NavHostController,
     appState: CarByComposeAppState,
     modifier: Modifier,
@@ -24,15 +24,16 @@ fun HomeNavGraph(
     ) {
         composable(route = "home0") {
             HomeScreen0(
-                homeViewModel = homeViewModel,
+//                homeViewModel = homeViewModel,
+                modifier = modifier,
                 appState = appState,
                 navigateToDetail = navigateToDetail,
             )
         }
         composable(route = "home1") {
             HomeScreen1(
-                homeViewModel = homeViewModel,
-                navController = navController
+//                homeViewModel = homeViewModel,
+//                navController = navController
             )
         }
         composable(route = "home2") {

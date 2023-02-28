@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 
 interface HomeRepository {
-    suspend fun getHotIcons(): Result<List<HotIcon>>
+//    suspend fun getHotIcons(): Result<List<HotIcon>>
 
     suspend fun addBannerColor(position: String, color: Color)
 
