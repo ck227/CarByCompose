@@ -28,8 +28,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -45,8 +43,10 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.ck.car2.CarByComposeAppState
-import com.ck.car2.R
+import com.ck.car2.data.mockdata.homeIcons
 import com.ck.car2.model.HotIcon
+import com.ck.car2.ui.common.ErrorScreen
+import com.ck.car2.ui.common.LoadingScreen
 import com.ck.car2.ui.theme.CarByComposeTheme
 import com.ck.car2.viewmodels.HomeUiState
 import com.ck.car2.viewmodels.HomeViewModel
@@ -59,118 +59,62 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
-
 @Composable
 fun HomeScreen0(
-//    homeViewModel: HomeViewModel,
-    modifier: Modifier,
-    appState: CarByComposeAppState,
-    navigateToDetail: () -> Unit
+    modifier: Modifier, appState: CarByComposeAppState, navigateToDetail: () -> Unit
 ) {
-
+//    if (appState.isOnline) {
     val homeViewModel: HomeViewModel = viewModel()
     when (val homeUiState = homeViewModel.homeUiState) {
         is HomeUiState.Loading -> LoadingScreen(modifier)
-        is HomeUiState.Success -> ResultScreen(homeUiState = homeUiState.dog.message, modifier)
+        is HomeUiState.Success -> ResultScreen(
+            homeUiState = homeUiState.dog.message, modifier, navigateToDetail
+        )
         is HomeUiState.Error -> ErrorScreen(modifier)
     }
+}
 
-    /*
-
+@Composable
+fun ResultScreen(homeUiState: String, modifier: Modifier, navigateToDetail: () -> Unit) {
     val systemUiController = rememberSystemUiController()
-    val uiState by homeViewModel.uiState.collectAsState()
+    val scroll = rememberScrollState(0)
+    val showDark by remember { derivedStateOf { scroll.value > 0 } }
+    systemUiController.setStatusBarColor(
+        color = Color.Transparent, darkIcons = showDark
+    )
+
+    val homeViewModel: HomeViewModel = viewModel()
     val bannerColorMap by homeViewModel.bannerColorMap.collectAsState()
-    val hasResult = when (uiState) {
-        is HomeUiState.HasPosts -> true
-        is HomeUiState.NoPosts -> false
-    }
     var bannerBgColor by remember { mutableStateOf(Color.Transparent) }
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
     Box(
-        Modifier
-            .fillMaxSize()
-            .padding(bottom = 56.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        val scroll = rememberScrollState(0)
-        val showDark by remember {
-            derivedStateOf {
-                scroll.value > 0
+        body(getBannerColor = { color, position ->
+            homeViewModel.addBannerColor(position, color)
+        }, setBannerColor = { color, position ->
+            if (color != null) {
+                bannerBgColor = color
+            } else if (bannerColorMap[position] != null) {
+                bannerBgColor = bannerColorMap[position]!!
             }
-        }
-        systemUiController.setStatusBarColor(
-            color = Color.Transparent, darkIcons = showDark
-        )
-        if (hasResult) {
-//            if (appState.isOnline) {
-            body(uiState = uiState,
-                getBannerColor = { color, position ->
-                    homeViewModel.addBannerColor(position, color)
-                },
-                setBannerColor = { color, position ->
-                    if (color != null) {
-                        bannerBgColor = color
-                    } else if (bannerColorMap[position] != null) {
-                        bannerBgColor = bannerColorMap[position]!!
-                    }
-                },
-                bannerBgColor = bannerBgColor,
-                scroll = scroll,
-                gridItemSelected = { gridItemId ->
-                    navigateToDetail()
-                })
-//            } else {
-//                Text(text = "没有网络链接", modifier = Modifier.fillMaxWidth().fillMaxHeight().clickable {
-//                    appState.refreshOnline()
-//                })
-//            }
-        }
+        }, bannerBgColor = bannerBgColor,
+            scroll = scroll,
+            gridItemSelected = { gridItemId ->
+                navigateToDetail()
+            })
         HomeTopAppBar(scroll = scroll)
-        MySearchBar(
-            screenWidth = screenWidth,
+        MySearchBar(screenWidth = screenWidth,
             bannerBgColor = bannerBgColor,
             scrollProvider = {
                 scroll.value
-            }
-        )
-    }*/
-}
-
-@Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
-    ) {
-        Image(
-            modifier = Modifier.size(200.dp),
-            painter = painterResource(R.drawable.loading_img),
-            contentDescription = stringResource(R.string.loading)
-        )
+            })
     }
 }
 
-@Composable
-fun ResultScreen(homeUiState: String, modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
-    ) {
-        androidx.compose.material.Text(homeUiState)
-    }
-}
 
-@Composable
-fun ErrorScreen(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxSize()
-    ) {
-        androidx.compose.material.Text(stringResource(R.string.loading_failed))
-    }
-}
-
-/*@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
     scroll: ScrollState
@@ -182,7 +126,6 @@ fun HomeTopAppBar(
     val iconColor = CarByComposeTheme.colors.homeTabText.copy(
         alpha = alpha
     )
-
     CenterAlignedTopAppBar(
         title = {},
         modifier = Modifier
@@ -239,12 +182,13 @@ fun MySearchBar(screenWidth: Dp, bannerBgColor: Color, scrollProvider: () -> Int
     val collapseFractionProvider = {
         (scrollProvider() / collapseRange).coerceIn(0f, 1f)
     }
+    val showGreyBg by remember { derivedStateOf { scrollProvider() > 20 } }
     CollapsingSearchBar(
         modifier = Modifier.statusBarsPadding(),
         screenWidth = screenWidth,
         collapseFractionProvider = collapseFractionProvider,
     ) {
-        SearchBar(bannerBgColor, scrollProvider() > 20)
+        SearchBar(bannerBgColor, showGreyBg)
     }
 }
 
@@ -334,7 +278,6 @@ fun SearchBar(bannerBgColor: Color, showGreyBg: Boolean) {
 
 @Composable
 fun body(
-    uiState: HomeUiState,
     getBannerColor: (color: Color, position: String) -> Unit,
     setBannerColor: (color: Color?, position: String) -> Unit,
     bannerBgColor: Color,
@@ -365,10 +308,8 @@ fun body(
                     )
             )
 
-            PhotoGrid(
-                (uiState as HomeUiState.HasPosts).hotIcons, gridItemSelected
-            )
-            HomeViewPager(uiState.hotIcons, scroll)
+            PhotoGrid(homeIcons, gridItemSelected)
+            HomeViewPager(homeIcons, scroll)
         }
         Column() {
             Spacer(
@@ -380,13 +321,13 @@ fun body(
                             .plus(8.dp)
                     )
             )
-            Banner(uiState = uiState, getImageColor = { color, position ->
+            Banner(getImageColor = { color, position ->
                 getBannerColor(color, position)
                 if (position.toInt() == 0) {
                     setBannerColor(color, position)
                 }
             }, bannerItemSelected = { position: Int ->
-                val size = (uiState as HomeUiState.HasPosts).hotIcons.size
+                val size = homeIcons.size
                 setBannerColor(
                     null, (position % size).toString()
                 )
@@ -398,11 +339,10 @@ fun body(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Banner(
-    uiState: HomeUiState,
     getImageColor: (color: Color, position: String) -> Unit,
     bannerItemSelected: (bannerPosition: Int) -> Unit,
 ) {
-    val pageCount = (uiState as HomeUiState.HasPosts).hotIcons.size
+    val pageCount = homeIcons.size
     val loopingCount = Int.MAX_VALUE
     val startIndex = 0
     val pagerState = rememberPagerState(initialPage = startIndex)
@@ -415,7 +355,7 @@ fun Banner(
     }
 
     fun pageMapper(index: Int): Int {
-        return (index - startIndex).floorMod(uiState.hotIcons.size)
+        return (index - startIndex).floorMod(homeIcons.size)
     }
 
     Box() {
@@ -424,7 +364,7 @@ fun Banner(
         ) { index ->
             val page = pageMapper(index)
             BannerItem(
-                uiState = uiState, hotIcon = uiState.hotIcons[page], getImageColor = getImageColor
+                hotIcon = homeIcons[page], getImageColor = getImageColor
             )
         }
         HorizontalPagerIndicator(
@@ -491,7 +431,7 @@ private fun Int.floorMod(other: Int): Int = when (other) {
 
 @Composable
 fun BannerItem(
-    uiState: HomeUiState, hotIcon: HotIcon, getImageColor: (color: Color, index: String) -> Unit
+    hotIcon: HotIcon, getImageColor: (color: Color, index: String) -> Unit
 ) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current).data(hotIcon.url).size(Size.ORIGINAL)
@@ -753,6 +693,6 @@ private fun shortestColumn(colHeights: IntArray): Int {
         }
     }
     return column
-}*/
+}
 
 

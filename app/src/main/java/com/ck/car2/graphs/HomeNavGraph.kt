@@ -1,7 +1,9 @@
 package com.ck.car2.graphs
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,7 +13,6 @@ import com.ck.car2.viewmodels.HomeViewModel
 
 @Composable
 fun HomeNavGraph(
-//    homeViewModel: HomeViewModel,
     navController: NavHostController,
     appState: CarByComposeAppState,
     modifier: Modifier,
@@ -20,11 +21,11 @@ fun HomeNavGraph(
     NavHost(
         navController = navController,
         startDestination = "home0",
+        modifier = Modifier.padding(bottom = 56.dp),
         route = Graph.HOME,
     ) {
         composable(route = "home0") {
             HomeScreen0(
-//                homeViewModel = homeViewModel,
                 modifier = modifier,
                 appState = appState,
                 navigateToDetail = navigateToDetail,
