@@ -25,11 +25,11 @@ sealed interface HomeUiState {
 
 
 /**
- * MarsViewModel.Factory对应用容器检索HomeRepository，并将它传给viewModel
+ * HomeViewModel.Factory对应用容器检索HomeRepository，并将它传给viewModel
  */
 class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
 
-    //这个地方需要的是屏幕状态
+    //初始的屏幕状态是loading
     var homeUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
 
@@ -50,6 +50,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
             homeUiState = try {
                 //通过repository获取数据
                 val dog = homeRepository.getBanner()
+                println(dog.toString())
                 HomeUiState.Success(dog)
             } catch (e: Exception) {
                 HomeUiState.Error

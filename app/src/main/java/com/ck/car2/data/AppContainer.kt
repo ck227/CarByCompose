@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
 interface AppContainer {
+    //根据业务需求，添加多个repository
     val homeRepository: HomeRepository
 }
 
