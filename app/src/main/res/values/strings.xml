@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CarByCompose</string>
+    <string name="app_name">MyComposeDemo</string>
     <string name="home_menu0">首页</string>
     <string name="home_menu1">分类</string>
     <string name="home_menu2">菜谱</string>

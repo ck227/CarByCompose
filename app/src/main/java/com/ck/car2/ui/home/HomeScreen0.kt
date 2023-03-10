@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -43,6 +44,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.ck.car2.CarByComposeAppState
+import com.ck.car2.R
 import com.ck.car2.data.mockdata.homeIcons
 import com.ck.car2.model.HotIcon
 import com.ck.car2.ui.common.ErrorScreen
@@ -619,15 +621,23 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
 
 @Composable
 fun ViewPagerHotIcon(hotIcon: HotIcon) {
-    Surface(
+    Card(
         modifier = Modifier
             .padding(4.dp)
             .clip(RoundedCornerShape(8.dp)),
+//        elevation = CardDefaults.cardElevation(
+//            defaultElevation = 8.dp
+//        )
     ) {
         AsyncImage(
-            model = hotIcon.url,
+            model = ImageRequest.Builder(context = LocalContext.current)
+                .data(hotIcon.url)
+                .crossfade(true)
+                .build(),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            error = painterResource(R.drawable.ic_broken_image),
+            placeholder = painterResource(R.drawable.loading_img),
+            contentScale = ContentScale.FillWidth,
         )
     }
 }
