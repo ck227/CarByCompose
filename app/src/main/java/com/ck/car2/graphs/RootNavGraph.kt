@@ -13,7 +13,6 @@ import com.ck.car2.ui.home.LaunchScreen
 
 @Composable
 fun RootNavigationGraph(
-//    appContainer: AppContainer,
     navController: NavHostController,
     appState: CarByComposeAppState = rememberCarByComposeAppState()
 ) {

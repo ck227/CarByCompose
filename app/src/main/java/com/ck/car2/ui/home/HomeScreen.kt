@@ -47,7 +47,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun MyBottomNavigation(navController: NavController, modifier: Modifier = Modifier) {
+private fun MyBottomNavigation(navController: NavController) {
     BottomNavigation(
         backgroundColor = CarByComposeTheme.colors.homeBottomItemBg,
     ) {

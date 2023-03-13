@@ -20,7 +20,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val LightColorPalette = CarByComposeColors(
     is_dark = false,
@@ -68,15 +67,6 @@ fun CarByComposeTheme(
 ) {
 //    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
     val colors = LightColorPalette
-    val sysUiController = rememberSystemUiController()
-    SideEffect {
-//        sysUiController.setSystemBarsColor(
-//            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
-//        )
-//        sysUiController.setStatusBarColor(
-//            color = colors.uiBackground.copy(alpha = AlphaNearOpaque)
-//        )
-    }
 
     ProvideCarByComposeColors(colors) {
         androidx.compose.material.MaterialTheme(
