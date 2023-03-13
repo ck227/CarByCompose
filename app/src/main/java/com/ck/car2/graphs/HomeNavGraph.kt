@@ -7,14 +7,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.ck.car2.CarByComposeAppState
+import com.ck.car2.ComposeDemoAppState
 import com.ck.car2.ui.home.*
-import com.ck.car2.viewmodels.HomeViewModel
 
 @Composable
 fun HomeNavGraph(
     navController: NavHostController,
-    appState: CarByComposeAppState,
+    appState: ComposeDemoAppState,
     modifier: Modifier,
     navigateToDetail: () -> Unit
 ) {

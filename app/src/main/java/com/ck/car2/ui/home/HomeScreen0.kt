@@ -43,7 +43,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
-import com.ck.car2.CarByComposeAppState
+import com.ck.car2.ComposeDemoAppState
 import com.ck.car2.R
 import com.ck.car2.data.mockdata.homeIcons
 import com.ck.car2.model.HotIcon
@@ -63,7 +63,7 @@ import kotlin.math.min
 
 @Composable
 fun HomeScreen0(
-    modifier: Modifier, appState: CarByComposeAppState, navigateToDetail: () -> Unit
+    modifier: Modifier, appState: ComposeDemoAppState, navigateToDetail: () -> Unit
 ) {
 //    if (appState.isOnline) {
 //    val homeViewModel: HomeViewModel = viewModel()
@@ -126,7 +126,7 @@ fun HomeTopAppBar(
     val bgColor = CarByComposeTheme.colors.uiBackground.copy(
         alpha = alpha
     )
-    val iconColor = CarByComposeTheme.colors.homeTabText.copy(
+    val iconColor = CarByComposeTheme.colors.firstTextColor.copy(
         alpha = alpha
     )
     CenterAlignedTopAppBar(
@@ -173,7 +173,7 @@ fun HomeTopAppBar(
             )
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = CarByComposeTheme.colors.transparent
+            containerColor = Color.Transparent
         )
     )
 }
@@ -239,7 +239,7 @@ fun SearchBar(bannerBgColor: Color, showGreyBg: Boolean) {
             .padding(start = 12.dp, end = 12.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(15.dp))
-            .background(if (showGreyBg) CarByComposeTheme.colors.homeTabDescTextUnSelect.copy(alpha = 0.1f) else CarByComposeTheme.colors.uiBackground),
+            .background(if (showGreyBg) CarByComposeTheme.colors.thirdTextColor.copy(alpha = 0.1f) else CarByComposeTheme.colors.uiBackground),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -248,11 +248,11 @@ fun SearchBar(bannerBgColor: Color, showGreyBg: Boolean) {
             modifier = Modifier
                 .padding(start = 8.dp, end = 6.dp)
                 .size(18.dp),
-            tint = CarByComposeTheme.colors.homeSearchBarTextColor
+            tint = CarByComposeTheme.colors.thirdTextColor
         )
         Text(
             text = "搜索您想要的商品",
-            color = CarByComposeTheme.colors.homeSearchBarTextColor,
+            color = CarByComposeTheme.colors.thirdTextColor,
             fontSize = 12.sp,
         )
         Row(
@@ -299,7 +299,7 @@ fun body(
                 text = "", modifier = Modifier
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(bannerBgColor, CarByComposeTheme.colors.transparent)
+                            colors = listOf(bannerBgColor, Color.Transparent)
                         )
                     )
                     .statusBarsPadding()
@@ -376,8 +376,8 @@ fun Banner(
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 8.dp, end = 20.dp),
             pageIndexMapping = ::pageMapper,
-            activeColor = CarByComposeTheme.colors.homeBannerSelect,
-            inactiveColor = CarByComposeTheme.colors.homeBannerUnSelect,
+            activeColor = Color.White,
+            inactiveColor = CarByComposeTheme.colors.transparentWhite,
             indicatorWidth = 14.dp,
             indicatorHeight = 2.dp,
             spacing = 2.dp,
@@ -517,7 +517,7 @@ fun PhotoItem(hotIcon: HotIcon, gridItemSelected: (photoId: Int) -> Unit) {
             modifier = Modifier.height(16.dp),
             text = hotIcon.title,
             fontSize = 11.sp,
-            color = CarByComposeTheme.colors.homeIconText
+            color = CarByComposeTheme.colors.firstTextColor
         )
     }
 }
@@ -583,20 +583,20 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
                             Text(
                                 text = hotIcon.title,
                                 fontSize = 13.sp,
-                                color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.homeTabText
+                                color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.firstTextColor
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
                                     .height(16.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.transparent)
+                                    .background(color = if (selected) CarByComposeTheme.colors.primary else Color.Transparent)
                                     .padding(start = 8.dp, end = 8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
                                     text = "好货专区",
-                                    color = if (selected) CarByComposeTheme.colors.homeTabDescTextSelect else CarByComposeTheme.colors.homeTabDescTextUnSelect,
+                                    color = if (selected) Color.White else CarByComposeTheme.colors.thirdTextColor,
                                     fontSize = 10.sp,
                                     textAlign = TextAlign.Center,
                                     style = LocalTextStyle.current.merge(
@@ -610,7 +610,7 @@ fun HomeViewPager(hotIcons: List<HotIcon>, scroll: ScrollState) {
                             }
                         }
                     },
-                    selectedContentColor = CarByComposeTheme.colors.transparent,
+                    selectedContentColor = Color.Transparent,
                 )
             }
         }

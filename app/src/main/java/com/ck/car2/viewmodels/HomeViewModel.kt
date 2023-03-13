@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.ck.car2.CarByComposeApplication
+import com.ck.car2.ComposeDemoApplication
 import com.ck.car2.data.home.HomeRepository
 import com.ck.car2.data.mockdata.Dog
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +69,7 @@ class HomeViewModel(private val homeRepository: HomeRepository) : ViewModel() {
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as CarByComposeApplication)
+                val application = (this[APPLICATION_KEY] as ComposeDemoApplication)
                 val homeRepository = application.container.homeRepository
                 HomeViewModel(homeRepository = homeRepository)
             }

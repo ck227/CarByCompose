@@ -4,7 +4,7 @@ import android.app.Application
 import com.ck.car2.data.AppContainer
 import com.ck.car2.data.DefaultAppContainer
 
-class CarByComposeApplication : Application() {
+class ComposeDemoApplication : Application() {
 
     lateinit var container: AppContainer
 

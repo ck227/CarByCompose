@@ -9,13 +9,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
 @Composable
-fun rememberCarByComposeAppState(
+fun rememberComposeDemoAppState(
     context: Context = LocalContext.current
 ) = remember(context) {
-    CarByComposeAppState(context)
+    ComposeDemoAppState(context)
 }
 
-class CarByComposeAppState(
+class ComposeDemoAppState(
     private val context: Context
 ) {
 

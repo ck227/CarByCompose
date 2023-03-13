@@ -21,17 +21,16 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ck.car2.CarByComposeAppState
+import com.ck.car2.ComposeDemoAppState
 import com.ck.car2.R
 import com.ck.car2.graphs.HomeNavGraph
 import com.ck.car2.ui.theme.CarByComposeTheme
-import com.ck.car2.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController = rememberNavController(),
-    appState: CarByComposeAppState,
+    appState: ComposeDemoAppState,
     navigateToDetail: () -> Unit
 ) {
     Scaffold(bottomBar = {
@@ -49,7 +48,7 @@ fun HomeScreen(
 @Composable
 private fun MyBottomNavigation(navController: NavController) {
     BottomNavigation(
-        backgroundColor = CarByComposeTheme.colors.homeBottomItemBg,
+        backgroundColor = CarByComposeTheme.colors.uiBackground,
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -76,17 +75,15 @@ private fun MyBottomNavigation(navController: NavController) {
                     Icon(
                         screen.icon,
                         contentDescription = null,
-                        tint = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.mainTabUnSelect
+                        tint = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.secondTextColor
                     )
                 },
                 label = {
                     Text(
                         text = stringResource(screen.title),
-                        color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.mainTabUnSelect
+                        color = if (selected) CarByComposeTheme.colors.primary else CarByComposeTheme.colors.secondTextColor
                     )
                 },
-//                selectedContentColor = MaterialTheme.colors.error,
-//                unselectedContentColor = MaterialTheme.colors.primary,
             )
         }
     }

@@ -6,15 +6,14 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.ck.car2.CarByComposeAppState
-import com.ck.car2.rememberCarByComposeAppState
+import com.ck.car2.ComposeDemoAppState
+import com.ck.car2.rememberComposeDemoAppState
 import com.ck.car2.ui.home.HomeScreen
 import com.ck.car2.ui.home.LaunchScreen
 
 @Composable
 fun RootNavigationGraph(
-    navController: NavHostController,
-    appState: CarByComposeAppState = rememberCarByComposeAppState()
+    navController: NavHostController, appState: ComposeDemoAppState = rememberComposeDemoAppState()
 ) {
     //appState应该是使用compositionLocal来传递
     NavHost(
@@ -34,12 +33,9 @@ fun RootNavigationGraph(
         }
         //主页面，跳转至详情
         composable(route = Graph.HOME) {
-            HomeScreen(
-                appState = appState,
-                navigateToDetail = {
-                    navController.navigate(Graph.DETAIL.plus("/wocao/666"))
-                }
-            )
+            HomeScreen(appState = appState, navigateToDetail = {
+                navController.navigate(Graph.DETAIL.plus("/wocao/666"))
+            })
         }
         detailGraph()
     }
